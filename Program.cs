@@ -80,7 +80,7 @@ while(isPlaying) {
                     }
                     var (playerCards, dealerCards) = DealCards();   // Get the initial dealt cards
                     
-                    playingGames = Play(playerCards, dealerCards);  
+                    playingGames = PlayerTurn(playerCards, dealerCards);  
                 }
             }
             break;  
@@ -152,7 +152,7 @@ while(isPlaying) {
             Thread.Sleep(1000);
         }
         else if (i == 3) {
-            Console.WriteLine("Dealer is dealt a random card.");
+            Console.WriteLine($"Dealer is dealt a {randomCard}.");
             if (!dealerCards.ContainsKey(randomCard))
             {
                 dealerCards.Add(randomCard, cards[randomCard]);
@@ -181,7 +181,7 @@ while(isPlaying) {
         */
     }
 
-    // Print player and dealer cards
+    /* DEBUGGING - PRINT CARDS RECEIVED BY PLAYER AND DEALER
     foreach (KeyValuePair<string, List<int>> playerCard in playerCards) {
         Console.Write($"{playerCard.Key} - ");
         foreach (int value in playerCard.Value) {
@@ -197,18 +197,20 @@ while(isPlaying) {
         }
         Console.WriteLine();
     }
+    */
 
     return (playerCards, dealerCards);
 }
 
-bool Play(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards) {
-    Thread.Sleep(2000);
+bool PlayerTurn(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards) {
     Console.Clear();
-    bool blackjack = CheckBlackJack(playerCards, dealerCards);
-    if (blackjack == true)
-        return false;
 
+    bool blackjack = CheckBlackJack(playerCards, dealerCards);
+    if (blackjack)
+        return false;
     return true;
+
+
 }
 
 // Calculates best value of hand (handling aces)
@@ -217,16 +219,16 @@ int CalculateBestHand(Dictionary<string, List<int>> cards) {
     int aceCount = 0;
 
     foreach (var card in cards) {
-        foreach (int value in card.Value) {
-            if (value == 11) {
-                aceCount++;
-            }
-            sum += value;
-            break;
+        // Check if the card is an Ace
+        if (card.Value.Contains(11)) {
+            aceCount++;
+            sum += 11; // Add Ace as value of 11
+        } else {
+            sum += card.Value[0];
         }
     }
 
-    // Adjust for Aces
+    // Adjust for Aces if the sum exceeds 21
     while (sum > 21 && aceCount > 0) {
         sum -= 10;
         aceCount--;
@@ -234,6 +236,7 @@ int CalculateBestHand(Dictionary<string, List<int>> cards) {
 
     return sum;
 }
+
 
 // Checks if either the player or the dealer has a blackjack
 bool CheckBlackJack(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards) {
@@ -243,17 +246,28 @@ bool CheckBlackJack(Dictionary<string, List<int>> playerCards, Dictionary<string
     if(playerCardSum == 21) {
         if(dealerCardSum == 21) {
             Console.WriteLine("Push");
+            Console.WriteLine("Press Enter to continue");
+            Console.ReadLine();
             return false;
         }
         else {
             Console.WriteLine("You have a blackjack!");
+            Console.WriteLine("Press Enter to continue");
+            Console.ReadLine();
             return true;
         }
     }
     else if(dealerCardSum == 21) {
         Console.WriteLine("Dealer has a blackjack.");
+        Console.WriteLine("Press Enter to continue");
+        Console.ReadLine();
         return true;
     }
+
+    Console.WriteLine(playerCardSum);
+    Console.WriteLine(dealerCardSum);
+
+    Thread.Sleep(1000);
 
     return false;
 }
