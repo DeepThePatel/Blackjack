@@ -12,3 +12,4 @@ C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\re
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\Blackjack.pdb
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\Blackjack.genruntimeconfig.cache
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\ref\Blackjack.dll
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\Blackjack.sourcelink.json
