@@ -5,9 +5,10 @@ Blackjack console game created using the .NET Framework programmed in C#.
 <h2>Gameplay</h2>
 
 To launch the game:
-1. &nbsp;&nbsp;Open the project folder in a new terminal in VSCode ```( Ctrl + Shift + ` )```
-2. &nbsp;&nbsp;Run ``` dotnet build ```
-3. &nbsp;&nbsp;Then ``` dotnet run ```
+1. &nbsp;&nbsp;Clone the project into a folder on your computer
+2. &nbsp;&nbsp;Open the project folder in a new terminal in VSCode ```( Ctrl + Shift + ` )```
+3. &nbsp;&nbsp;Run ``` dotnet build ```
+4. &nbsp;&nbsp;Then ``` dotnet run ```
 
 <br>
 
