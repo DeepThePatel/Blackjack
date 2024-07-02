@@ -1,4 +1,4 @@
-﻿int balance = 5000;
+﻿﻿int balance = 5000;
 string? readResult;
 string casino = "";
 int minBet;
@@ -203,7 +203,7 @@ while(isPlaying) {
 
 bool Play(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards) {
     Thread.Sleep(2000);
-//    Console.Clear();
+    Console.Clear();
     bool blackjack = CheckBlackJack(playerCards, dealerCards);
     if (blackjack == true)
         return false;
