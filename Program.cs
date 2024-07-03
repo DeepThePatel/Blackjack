@@ -161,7 +161,7 @@ while(isPlaying) {
     }
 
     //DEBUGGING - PRINT CARDS RECEIVED BY PLAYER AND DEALER
-    foreach (var playerCard in playerCards) {
+    /*  foreach (var playerCard in playerCards) {
         Console.Write($"{playerCard.Item1} - ");
         foreach (int value in playerCard.Item2) {
             Console.Write($"{value} ");
@@ -175,15 +175,9 @@ while(isPlaying) {
             Console.Write($"{value} ");
         }
         Console.WriteLine();
-    }
+    } */
 
     return (playerCards, dealerCards);
-}
-
-void AddCardToHand(Dictionary<string, List<int>> hand, string card) {
-    if (!hand.ContainsKey(card)) {
-        hand.Add(card, cards[card]);
-    }
 }
 
 bool PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
@@ -193,6 +187,7 @@ bool PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, L
 
     bool stay = false;
     while (playerCardSum <= 21 && stay == false) {
+        Console.Clear();
         playerCardSum = CalculateBestHand(playerCards);
 
         Console.WriteLine($"--Player's Hand ({playerCardSum})--");
