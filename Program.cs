@@ -1,4 +1,4 @@
-﻿﻿double balance = 5000;
+﻿﻿﻿double balance = 5000;
 string? readResult;
 string casino = "";
 int minBet;
@@ -127,12 +127,12 @@ while(isPlaying) {
 }
 
 // Dealing initial cards
-(Dictionary<string, List<int>>, Dictionary<string, List<int>>) DealCards() {
+(List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>) DealCards() {
     // Retrieve all cards
     List<string> deck = new List<string>(cards.Keys);
     Random dealCard = new Random();
-    Dictionary<string, List<int>> playerCards = new Dictionary<string, List<int>>();
-    Dictionary<string, List<int>> dealerCards = new Dictionary<string, List<int>>();
+    List<Tuple<string, List<int>>> playerCards = new List<Tuple<string, List<int>>>();
+    List<Tuple<string, List<int>>> dealerCards = new List<Tuple<string, List<int>>>();
 
     // Deal cards to player and dealer in an alternating fashion where the dealer's second card is kept hidden
     for (int i = 0; i < 4; i++) {
@@ -141,38 +141,17 @@ while(isPlaying) {
 
         if (i % 2 == 0) {
             Console.WriteLine($"You are dealt the {randomCard}.");
-            if (!playerCards.ContainsKey(randomCard))
-            {
-                playerCards.Add(randomCard, cards[randomCard]);
-            }
-            else
-            {
-                playerCards[randomCard].AddRange(cards[randomCard]);
-            }
+            playerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
             Thread.Sleep(1000);
         }
         else if (i == 3) {
             Console.WriteLine($"Dealer is dealt a random card.");
-            if (!dealerCards.ContainsKey(randomCard))
-            {
-                dealerCards.Add(randomCard, cards[randomCard]);
-            }
-            else
-            {
-                dealerCards[randomCard].AddRange(cards[randomCard]);
-            }
+            dealerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
             Thread.Sleep(1000);
         }
         else {
             Console.WriteLine($"Dealer is dealt the {randomCard}.");
-            if (!dealerCards.ContainsKey(randomCard))
-            {
-                dealerCards.Add(randomCard, cards[randomCard]);
-            }
-            else
-            {
-                dealerCards[randomCard].AddRange(cards[randomCard]);
-            }
+            dealerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
             Thread.Sleep(1000);
         }
         /*  Uncomment to play with SINGLE DECK
@@ -181,43 +160,49 @@ while(isPlaying) {
         */
     }
 
-    /* DEBUGGING - PRINT CARDS RECEIVED BY PLAYER AND DEALER
-    foreach (KeyValuePair<string, List<int>> playerCard in playerCards) {
-        Console.Write($"{playerCard.Key} - ");
-        foreach (int value in playerCard.Value) {
+    //DEBUGGING - PRINT CARDS RECEIVED BY PLAYER AND DEALER
+    foreach (var playerCard in playerCards) {
+        Console.Write($"{playerCard.Item1} - ");
+        foreach (int value in playerCard.Item2) {
             Console.Write($"{value} ");
         }
         Console.WriteLine();
     }
 
-    foreach (KeyValuePair<string, List<int>> dealerCard in dealerCards) {
-        Console.Write($"{dealerCard.Key} - ");
-        foreach (int value in dealerCard.Value) {
+    foreach (var dealerCard in dealerCards) {
+        Console.Write($"{dealerCard.Item1} - ");
+        foreach (int value in dealerCard.Item2) {
             Console.Write($"{value} ");
         }
         Console.WriteLine();
     }
-    */
 
     return (playerCards, dealerCards);
 }
 
-bool PlayerTurn(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards, int bet) {
-    Console.Clear();
+void AddCardToHand(Dictionary<string, List<int>> hand, string card) {
+    if (!hand.ContainsKey(card)) {
+        hand.Add(card, cards[card]);
+    }
+}
 
+bool PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
     var(blackjack, playerCardSum, dealerCardSum) = CheckBlackJack(playerCards, dealerCards, bet);
     if (blackjack)
         return false;
 
     bool stay = false;
     while (playerCardSum <= 21 && stay == false) {
+        playerCardSum = CalculateBestHand(playerCards);
+
         Console.WriteLine($"--Player's Hand ({playerCardSum})--");
-        foreach (KeyValuePair<string, List<int>> playerCard in playerCards) {
-            Console.WriteLine($"{playerCard.Key}");
+        foreach (var playerCard in playerCards) {
+            Console.WriteLine(playerCard.Item1);
         }
+
         Console.WriteLine();
         Console.WriteLine("--Dealer's Hand--");
-        var dealerFirstCard = dealerCards.Keys.ElementAt(0);
+        var dealerFirstCard = dealerCards[0].Item1;
         Console.WriteLine($"{dealerFirstCard}\nHidden Card");
         Console.WriteLine();
 
@@ -225,31 +210,20 @@ bool PlayerTurn(Dictionary<string, List<int>> playerCards, Dictionary<string, Li
         readResult = Console.ReadLine()?.ToLower().Trim();
         if (readResult != null) {
             validEntry = false;
-            do
-            {
+            do {
                 if (readResult == "hit") {
                     Random dealCard = new Random();
                     List<string> deck = new List<string>(cards.Keys);
                     int index = dealCard.Next(0, deck.Count);
                     string randomCard = deck[index];
-                    Console.WriteLine($"\nYou are dealt the {randomCard}.");
-                    if (!playerCards.ContainsKey(randomCard))
-                    {
-                        playerCards.Add(randomCard, cards[randomCard]);
-                    }
-                    else
-                    {
-                        playerCards[randomCard].AddRange(cards[randomCard]);
-                    }
 
-                    foreach (int value in cards[randomCard]) {
-                        playerCardSum += value;
-                    }
+                    playerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
 
-                    Console.WriteLine(playerCardSum);
+                    playerCardSum = CalculateBestHand(playerCards);
 
                     if (playerCardSum > 21) {
-                        Console.WriteLine("You busted.");
+                        Console.WriteLine($"\nYou are dealt the {randomCard}.");
+                        Console.WriteLine($"You busted with a total of {playerCardSum}.");
                         balance -= bet;
                         Console.WriteLine($"Your balance is ${balance}");
                         Console.WriteLine("\nPress the Enter key to continue");
@@ -258,35 +232,32 @@ bool PlayerTurn(Dictionary<string, List<int>> playerCards, Dictionary<string, Li
                     }
 
                     validEntry = true;
-                }
-                else if (readResult == "stay") {
+                } else if (readResult == "stay") {
                     stay = true;
                     validEntry = true;
+                } else {
+                    Console.WriteLine("Invalid input, please enter (Hit) or (Stay)");
                 }
-                else {
-                    Console.WriteLine("Invalid input, please enter Hit or Stay");
-                }
-            } while (validEntry == false); 
+            } while (validEntry == false);
         }
     }
-
-    Console.ReadLine(); // For testing purposes, delete when ready
 
     return true;
 }
 
+
 // Calculates best value of hand (handling aces)
-int CalculateBestHand(Dictionary<string, List<int>> cards) {
+int CalculateBestHand(List<Tuple<string, List<int>>> cards) {
     int sum = 0;
     int aceCount = 0;
 
     foreach (var card in cards) {
         // Check if the card is an Ace
-        if (card.Value.Contains(11)) {
+        if (card.Item2.Contains(11)) {
             aceCount++;
             sum += 11; // Add Ace as value of 11
         } else {
-            sum += card.Value[0];
+            sum += card.Item2[0];
         }
     }
 
@@ -301,7 +272,7 @@ int CalculateBestHand(Dictionary<string, List<int>> cards) {
 
 
 // Checks if either the player or the dealer has a blackjack
-(bool,int,int) CheckBlackJack(Dictionary<string, List<int>> playerCards, Dictionary<string, List<int>> dealerCards, int bet) {
+(bool, int, int) CheckBlackJack(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
     int playerCardSum = CalculateBestHand(playerCards);
     int dealerCardSum = CalculateBestHand(dealerCards);
 
@@ -311,8 +282,7 @@ int CalculateBestHand(Dictionary<string, List<int>> cards) {
             Console.WriteLine("\nPress Enter to continue");
             Console.ReadLine();
             return (false, playerCardSum, dealerCardSum);
-        }
-        else {
+        } else {
             Console.WriteLine("You have a blackjack!");
             balance += bet * 1.5;
             Console.WriteLine($"Your new balance is ${balance}");
@@ -320,10 +290,9 @@ int CalculateBestHand(Dictionary<string, List<int>> cards) {
             Console.ReadLine();
             return (true, playerCardSum, dealerCardSum);
         }
-    }
-    else if(dealerCardSum == 21) {
+    } else if(dealerCardSum == 21) {
         Console.WriteLine("Dealer has a blackjack.");
-        var hiddenCard = dealerCards.Keys.ElementAt(1);
+        var hiddenCard = dealerCards[1].Item1;
         Console.WriteLine($"Dealer's hidden card is {hiddenCard}");
         balance -= bet;
         Console.WriteLine($"Your new balance is ${balance}");
