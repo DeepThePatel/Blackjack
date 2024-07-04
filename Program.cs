@@ -1,4 +1,6 @@
-﻿﻿double balance = 5000;
+﻿﻿/* Developed by Deep Patel (2024) */
+
+double balance = 5000;
 string? readResult;
 string casino = "";
 bool validEntry = false;
