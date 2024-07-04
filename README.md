@@ -2,6 +2,11 @@ Blackjack console game created using the .NET Framework programmed in C#.
 
 *All code is written and owned by me.*
 
+**NOTE:** At the current state of the game the following abilities are **NOT** included:
+- Doubling Down
+- Insurance
+- Splitting Pairs
+
 <h2>Gameplay</h2>
 
 To launch the game:
@@ -32,7 +37,25 @@ Once the preferred casino is selected, player is prompted to enter a bet within 
 
 Once a valid bet is placed, the program begins to deal the player and dealer their hands in an alternating fashion.
 
-Once cards are dealt, player is shown their hand, the total of their hand, and the dealer's hand. They are then given the option to ```Hit``` or ```Stay```
+<br>
+
+*<h3>Blackjack</h3>*
+
+Before the program continues, it checks to see whether the player or the dealer have a blackjack. 
+
+If the player has a blackjack, the program will notify the player and end the round. 
+
+If the dealer has a blackjack, the program will notify the user and end the round. 
+
+In the event that both the player and the dealer have a blackjack, the program will notify the player that there is a ```Push```.
+
+<br>
+
+*<h3>The Player's Turn</h3>*
+
+Once the cards are dealt, player is shown their hand, the total of their hand, and the dealer's hand. 
+
+They are then given the option to ```Hit``` or ```Stay```
 
 ```Hit```&nbsp;: &nbsp;A random card is drawn into the player's hand
 
@@ -48,7 +71,13 @@ If the player busts:
 
 ```Stay```&nbsp;: &nbsp;Player does not draw a card and the program proceeds to play the dealer's hand
 
-> **TO BE CONTINUED AS DEVELOPMENT PROGRESSES**
+<br>
+
+*<h3>The Dealer's Turn</h3>*
+
+Once the player decides to stand with their hand, the dealer begins to draw cards.
+
+The dealer will continue to draw cards until they either land on at least a soft 17 or bust, which then the program will determine the winner.
 
 <br>
 
@@ -64,8 +93,3 @@ The Shuffle and Cut section is ignored as the cards dealt are randomly generated
 Dealer must stand on soft 17
 
 Blackjack pays 3:2
-
-At the current state of the game the following abilities are **NOT** included:
-- Doubling Down
-- Insurance
-- Splitting Pairs
