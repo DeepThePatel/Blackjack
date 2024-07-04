@@ -4,6 +4,7 @@ string casino = "";
 bool validEntry = false;
 bool isPlaying = true;
 bool isPlayingCasino = true;
+bool reset = false;
 int playerCardSum = 0;
 int dealerCardSum = 0;
 var cards = new Dictionary<string, List<int>> {
@@ -32,6 +33,8 @@ while (isPlaying)
 {
     Console.Clear();
     Console.WriteLine("Welcome to Blackjack!");
+    if (reset == true)
+        balance = 500;
     Console.WriteLine($"Your current balance: ${balance}.\n");
     Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
     Console.WriteLine("Enter Q to exit.");
@@ -61,7 +64,7 @@ while (isPlaying)
         }
     } while (validEntry == false);
 
-    // Necessary to validate player quitting after exiting casino
+    // Necessary to validate player quitting the game
     if (isPlaying == false)
     {
         break;
@@ -90,11 +93,10 @@ while (isPlaying)
 
 /* Main method, playing the casino
     PARAMETERS:
-        * string casino - name of the casino
+        * string casino - Name of the casino
         * int minBet - Casino's minimum bet
 */
 void PlayCasino(string casino, int minBet) {
-    // Playing the casino
     while (isPlayingCasino)
     {
         bool playingGames = true;
@@ -103,6 +105,10 @@ void PlayCasino(string casino, int minBet) {
         {
             Console.Clear();
             Console.WriteLine($"Welcome to {casino}!");
+            if (reset == true) {    // Check if player ran out of money, reset with balance of $500
+                balance = 500;
+                reset = false;
+            } 
             Console.WriteLine($"Your balance is ${balance}");
             var (bet, quit) = EnterBet(minBet);
             if (quit == true)
@@ -114,8 +120,7 @@ void PlayCasino(string casino, int minBet) {
 
             (playingGames, playerCardSum) = PlayerTurn(playerCards, dealerCards, bet);
             if (playingGames == false)
-                break;
-
+                break;;
             DealerTurn(playerCards, dealerCards, bet);
         }
     }
@@ -186,7 +191,7 @@ void PlayCasino(string casino, int minBet) {
         }
         else if (i == 3)
         {
-            Console.WriteLine($"Dealer is dealt a random card.");
+            Console.WriteLine($"Dealer is dealt a hidden card.");
             dealerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
             Thread.Sleep(1000);
         }
@@ -222,6 +227,97 @@ void PlayCasino(string casino, int minBet) {
     Console.Clear();
 
     return (playerCards, dealerCards);
+}
+
+/*  Checks if either the player or the dealer has a blackjack
+    PARAMETERS:
+        * List<Tuple<string, List<int>>> playerCards - Player's hand
+        * List<Tuple<string, List<int>>> dealerCards - Dealer's hand
+        * int bet - Player's bet
+    RETURN VALUES:
+        * bool - Boolean value that returns (true) if there is a blackjack and (false) if there is not
+        * int playerCardSum - The sum of the player's hand
+        * int dealerCardSum - The sum of the dealer's hand
+*/
+(bool, int, int) CheckBlackJack(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
+    int playerCardSum = CalculateBestHand(playerCards);
+    int dealerCardSum = CalculateBestHand(dealerCards);
+
+    if (playerCardSum == 21)
+    {
+        if (dealerCardSum == 21)
+        {
+            Console.WriteLine("\nPush");
+            Console.WriteLine("\nPress Enter to continue");
+            Console.ReadLine();
+            return (false, playerCardSum, dealerCardSum);
+        }
+        else
+        {
+            DisplayPlayersHand(playerCards, playerCardSum);
+            Console.WriteLine();
+            DisplayDealersHand(dealerCards, dealerCardSum);
+            Console.WriteLine("\nBLACKJACK!");
+            balance += bet * 1.5;
+            Console.WriteLine($"Your new balance is ${balance}.");
+            Console.WriteLine("\nPress Enter to continue");
+            Console.ReadLine();
+            return (true, playerCardSum, dealerCardSum);
+        }
+    }
+    else if (dealerCardSum == 21)
+    {
+        DisplayPlayersHand(playerCards, playerCardSum);
+        Console.WriteLine();
+        DisplayDealersHand(dealerCards, dealerCardSum);
+
+        Console.WriteLine();
+
+        Console.WriteLine("Dealer has a blackjack.");
+        balance -= bet;
+        CheckBalance(balance);
+        
+        return (true, playerCardSum, dealerCardSum);
+    }
+
+    Thread.Sleep(1000);
+
+    return (false, playerCardSum, dealerCardSum);
+}
+
+/*  Calculates best value of hand (handling aces)
+    PARAMETERS:
+        * List<Tuple<string, List<int>>> cards - Hand of cards (player or dealer)
+    RETURN VALUES:
+        * int sum - Returns best calculated sum
+*/
+int CalculateBestHand(List<Tuple<string, List<int>>> cards)
+{
+    int sum = 0;
+    int aceCount = 0;
+
+    foreach (var card in cards)
+    {
+        // Check if the card is an Ace
+        if (card.Item2.Contains(11))
+        {
+            aceCount++;
+            sum += 11; // Add Ace as value of 11
+        }
+        else
+        {
+            sum += card.Item2[0];
+        }
+    }
+
+    // Adjust for Aces if the sum exceeds 21
+    while (sum > 21 && aceCount > 0)
+    {
+        sum -= 10;
+        aceCount--;
+    }
+
+    return sum;
 }
 
 /*  Handling the player's turn
@@ -277,9 +373,7 @@ void PlayCasino(string casino, int minBet) {
                     
                     Console.WriteLine($"\nYou busted.");
                     balance -= bet;
-                    Console.WriteLine($"Your balance is ${balance}.");
-                    Console.WriteLine("\nPress the Enter key to continue");
-                    Console.ReadLine();
+                    CheckBalance(balance);
                     return (false, playerCardSum);
                 }
 
@@ -297,6 +391,8 @@ void PlayCasino(string casino, int minBet) {
                 Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
             }
         } while (validEntry == false);
+        if (reset == true)
+            break;
     }
 
     return (true, playerCardSum);
@@ -323,9 +419,7 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, L
 
             Console.WriteLine("\nDealer wins.");
             balance -= bet;
-            Console.WriteLine($"Your balance is ${balance}.");
-            Console.WriteLine("\nPress the Enter key to continue");
-            Console.ReadLine();
+            CheckBalance(balance);
         }
         else if (playerCardSum > dealerCardSum)
         {
@@ -385,9 +479,8 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, L
                 {
                     Console.WriteLine("\nDealer wins.");
                     balance -= bet;
-                    Console.WriteLine($"Your balance is ${balance}.");
-                    Console.WriteLine("\nPress the Enter key to continue");
-                    Console.ReadLine();
+                    CheckBalance(balance);
+                    
                 }
                 else if (playerCardSum > dealerCardSum)
                 {
@@ -420,98 +513,6 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, L
     }
 }
 
-/*  Calculates best value of hand (handling aces)
-    PARAMETERS:
-        * List<Tuple<string, List<int>>> cards - Hand of cards (player or dealer)
-    RETURN VALUES:
-        * int sum - Returns best calculated sum
-*/
-int CalculateBestHand(List<Tuple<string, List<int>>> cards)
-{
-    int sum = 0;
-    int aceCount = 0;
-
-    foreach (var card in cards)
-    {
-        // Check if the card is an Ace
-        if (card.Item2.Contains(11))
-        {
-            aceCount++;
-            sum += 11; // Add Ace as value of 11
-        }
-        else
-        {
-            sum += card.Item2[0];
-        }
-    }
-
-    // Adjust for Aces if the sum exceeds 21
-    while (sum > 21 && aceCount > 0)
-    {
-        sum -= 10;
-        aceCount--;
-    }
-
-    return sum;
-}
-
-/*  Checks if either the player or the dealer has a blackjack
-    PARAMETERS:
-        * List<Tuple<string, List<int>>> playerCards - Player's hand
-        * List<Tuple<string, List<int>>> dealerCards - Dealer's hand
-        * int bet - Player's bet
-    RETURN VALUES:
-        * bool - Boolean value that returns (true) if there is a blackjack and (false) if there is not
-        * int playerCardSum - The sum of the player's hand
-        * int dealerCardSum - The sum of the dealer's hand
-*/
-(bool, int, int) CheckBlackJack(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
-    int playerCardSum = CalculateBestHand(playerCards);
-    int dealerCardSum = CalculateBestHand(dealerCards);
-
-    if (playerCardSum == 21)
-    {
-        if (dealerCardSum == 21)
-        {
-            Console.WriteLine("\nPush");
-            Console.WriteLine("\nPress Enter to continue");
-            Console.ReadLine();
-            return (false, playerCardSum, dealerCardSum);
-        }
-        else
-        {
-            DisplayPlayersHand(playerCards, playerCardSum);
-            Console.WriteLine();
-            DisplayDealersHand(dealerCards, dealerCardSum);
-            Console.WriteLine("\nBLACKJACK!");
-            balance += bet * 1.5;
-            Console.WriteLine($"Your new balance is ${balance}.");
-            Console.WriteLine("\nPress Enter to continue");
-            Console.ReadLine();
-            return (true, playerCardSum, dealerCardSum);
-        }
-    }
-    else if (dealerCardSum == 21)
-    {
-        DisplayPlayersHand(playerCards, playerCardSum);
-        Console.WriteLine();
-        DisplayDealersHand(dealerCards, dealerCardSum);
-
-        Console.WriteLine();
-
-        Console.WriteLine("Dealer has a blackjack.");
-        balance -= bet;
-        Console.WriteLine($"Your new balance is ${balance}.");
-        Console.WriteLine("\nPress Enter to continue");
-        Console.ReadLine();
-        return (true, playerCardSum, dealerCardSum);
-    }
-
-    Thread.Sleep(1000);
-
-    return (false, playerCardSum, dealerCardSum);
-}
-
 /* Displays player's and dealer's hands
     PARAMETERS:
         * List<Tuple<string, List<int>>> playerCards - Player's hand
@@ -531,5 +532,31 @@ void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCa
     foreach (var dealerCard in dealerCards)
     {
         Console.WriteLine(dealerCard.Item1);
+    }
+}
+
+// Resets player's balance to $500 if their balance is 0
+void ResetMoney() {
+    Console.WriteLine("\nYou are out of money!");
+    Thread.Sleep(1500);
+    Console.WriteLine("You will be reset with $500.");
+    Thread.Sleep(1500);
+    Console.WriteLine("\nPress the Enter key to return to the menu");
+    Console.ReadLine();
+}
+
+/* Checks if player's balance is > 0
+    PARAMETERS:
+        * double balance - Player's current balance
+*/
+void CheckBalance(double balance) {
+    if (balance <= 0) {
+        reset = true;
+        ResetMoney();
+    }
+    else {
+        Console.WriteLine($"Your balance is ${balance}.");
+        Console.WriteLine("\nPress the Enter key to continue");
+        Console.ReadLine();
     }
 }
