@@ -120,9 +120,9 @@ void PlayCasino(string casino, int minBet) {
             }
             var (playerCards, dealerCards) = DealCards();
 
-            (playingGames, playerCardSum) = PlayerTurn(playerCards, dealerCards, bet);
+            (playingGames, playerCardSum, bet) = PlayerTurn(playerCards, dealerCards, bet);
             if (playingGames == false)
-                break;;
+                break;
             DealerTurn(playerCards, dealerCards, bet);
         }
     }
@@ -331,17 +331,20 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
         * bool - Boolean value that returns (true) if round should continue and (false) if not
         * int playerCardSum - Returns the sum of the player's hand
 */
-(bool, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
+(bool, int, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
 {
+    bool stand = false;
+    bool canDouble = true;
+    bool doubled = false;
     var (blackjack, playerCardSum, dealerCardSum) = CheckBlackJack(playerCards, dealerCards, bet);
     if (blackjack)
-        return (false, 21);
+        return (false, 21, bet);
 
-    bool stand = false;
     while (playerCardSum <= 21 && stand == false)
     {
+        if (doubled == true)
+            break;
         playerCardSum = CalculateBestHand(playerCards);
-
         DisplayPlayersHand(playerCards, playerCardSum);
         Console.WriteLine();
         Console.WriteLine("--Dealer's Hand--");
@@ -351,11 +354,27 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
 
         do
         {
+            if (doubled == true)
+                break;
+            if ((bet * 2) > balance)
+                canDouble = false;
             // Loop that asks player to hit or stand, will continue until player busts or stands
-            Console.WriteLine("Would you like to (Hit) or (Stand)?");
+            if (canDouble == true)
+                Console.WriteLine("Would you like to (Hit) or (Double) or (Stand)?");
+            else
+                Console.WriteLine("Would you like to (Hit) or (Stand)?");
             readResult = Console.ReadLine()?.ToLower().Trim();
-            if (readResult == "hit")
+            if (readResult == "hit" || readResult == "double")
             {
+                if (canDouble == false) {
+                    Console.Clear();
+                    Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
+                    break;
+                }
+                if (readResult == "double") {
+                    bet *= 2;
+                    doubled = true;
+                }
                 // Draw a random card
                 Random dealCard = new Random();
                 List<string> deck = new List<string>(cards.Keys);
@@ -376,10 +395,11 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
                     Console.WriteLine($"\nYou busted.");
                     balance -= bet;
                     CheckBalance(balance);
-                    return (false, playerCardSum);
+                    return (false, playerCardSum, bet);
                 }
 
                 Console.Clear();
+                canDouble = false;
                 validEntry = true;
             }
             else if (readResult == "stand")
@@ -397,7 +417,7 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
             break;
     }
 
-    return (true, playerCardSum);
+    return (true, playerCardSum, bet);
 }
 
 /*  Handling the dealer's turn
