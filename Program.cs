@@ -625,12 +625,12 @@ void ResetMoney() {
     Console.ReadLine();
 }
 
-/* Checks if player's balance is > 0
+/* Checks if player's balance is < 50
     PARAMETERS:
         * double balance - Player's current balance
 */
 void CheckBalance(double balance) {
-    if (balance <= 0) {
+    if (balance < 50) {
         reset = true;
         ResetMoney();
     }
