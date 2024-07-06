@@ -2,9 +2,7 @@ Blackjack console game created using the .NET Framework programmed in C#.
 
 *All code is written and owned by me.*
 
-**NOTE:** At the current state of the game the following abilities are **NOT** included:
-- Insurance
-- Splitting Pairs
+> **NOTE:** At the current state of the game the ability to *SPLIT PAIRS* is **NOT** included:
 
 <h2>Gameplay</h2>
 
@@ -38,15 +36,21 @@ Once a valid bet is placed, the program begins to deal the player and dealer the
 
 <br>
 
+*<h3>Insurance</h3>*
+
+Once the cards are dealt and in the event that the dealer's first card is an Ace (where the player does **NOT** have a blackjack), the player has the ability to bet ```Insurance```.
+- The player is able to bet up to half of their original bet or ```0``` if they do not wish to take insurance.
+- If insurance is taken and the player wins, they will receive their original bet and 2x their insurance.
+- If insurance is taken and the player loses, they will lose their original bet and their insurance.
+- If insurance is not taken, the game will continue.
+
+<br>
+
 *<h3>Blackjack</h3>*
 
 Before the program continues, it checks to see whether the player or the dealer have a blackjack. 
-
-If the player has a blackjack, the program will notify the player and end the round. 
-
-If the dealer has a blackjack, the program will notify the user and end the round. 
-
-In the event that both the player and the dealer have a blackjack, the program will notify the player that there is a ```Push```.
+- If either the player or the dealer have a blackjack, the player will be notified and the round will end.
+- In the event that both the player and the dealer have a blackjack, the program will notify the player that there is a ```Push```.
 
 <br>
 
