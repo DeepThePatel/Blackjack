@@ -332,7 +332,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
         Console.WriteLine("Dealer has a blackjack.");
         if (insurance > 0) {
             Console.WriteLine("You won insurance!");
-            balance += insurance * 2;
+            balance += bet + (insurance * 2);
         }
         CheckBalance(balance);
         
