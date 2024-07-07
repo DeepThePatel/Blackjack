@@ -245,6 +245,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     var dealerFirstCard = dealerCards[0].Item1;
     int maxInsuranceBet = bet/2;
     int insuranceBet = 0;
+    bool validInsuranceNumber = false;
     playerCardSum = CalculateBestHand(playerCards);
 
     if (playerCardSum != 21) {
@@ -262,11 +263,17 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 Console.WriteLine($"\nDealer has an Ace, would you like to purchase insurance?\nYou may bet up to ${(balance > maxInsuranceBet ? maxInsuranceBet : balance)}. If you do not want insurance, enter 0.");
                 do
                 {
-                    readResult = Console.ReadLine()?.ToLower().Trim();
-                    bool validNumber = int.TryParse(readResult, out insuranceBet);
-                    if (validNumber == false || insuranceBet > maxInsuranceBet)
-                    {
-                        Console.WriteLine($"Invalid entry. Insurance bet must be between 1 and {(balance > maxInsuranceBet ? maxInsuranceBet : balance)} or 0 for no insurance.");
+                    while(validInsuranceNumber == false){
+                        readResult = Console.ReadLine()?.ToLower().Trim();
+                        validInsuranceNumber = int.TryParse(readResult, out insuranceBet);
+                        if (validInsuranceNumber == false || insuranceBet > maxInsuranceBet)
+                        {
+                            validInsuranceNumber = false;
+                            Console.WriteLine($"\nInvalid entry. Insurance bet must be between 1 and {(balance > maxInsuranceBet ? maxInsuranceBet : balance)} or 0 for no insurance.");
+                        }
+                        else {
+                            validInsuranceNumber = true;
+                        }
                     }
                     if(insuranceBet == 0) {
                         insuranceBet = 0;
