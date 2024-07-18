@@ -8,7 +8,10 @@ bool isPlaying = true;
 bool isPlayingCasino = true;
 bool reset = false;
 bool hasInsurance = false;
+bool split = false;
 int playerCardSum = 0;
+int playerFirstHandSum = 0;
+int playerSecondHandSum = 0;
 int dealerCardSum = 0;
 var cards = new Dictionary<string, List<int>> {
     {"2 of Spades", new List <int> {2}}, {"3 of Spades", new List <int> {3}}, {"4 of Spades", new List <int> {4}},
@@ -120,11 +123,13 @@ void PlayCasino(string casino, int minBet) {
                 break;
             }
             var (playerCards, dealerCards) = DealCards();
-
-            (playingGames, playerCardSum, bet) = PlayerTurn(playerCards, dealerCards, bet);
+            
+            List<Tuple<string, List<int>>>? playerFirstHand = null;
+            List<Tuple<string, List<int>>>? playerSecondHand = null;
+            (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
             if (playingGames == false)
                 break;
-            DealerTurn(playerCards, dealerCards, bet);
+            DealerTurn(playerCards, dealerCards, playerFirstHand, playerSecondHand, bet);   // Null reference is OK since not all hands are split
         }
     }
 }
@@ -354,6 +359,93 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     return (false, playerCardSum, dealerCardSum);
 }
 
+(List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>) Split(List<Tuple<string, List<int>>> playerCards, int bet) {
+    Console.Clear();
+    List<Tuple<string, List<int>>> playerFirstHand = new List<Tuple<string, List<int>>>();
+    List<Tuple<string, List<int>>> playerSecondHand = new List<Tuple<string, List<int>>>();
+    bool stand = false;
+    var playerFirstCard = playerCards[0].Item2;
+    var playerSecondCard = playerCards[1].Item2;
+
+    playerFirstHand.Add(Tuple.Create(playerCards[0].Item1, new List<int>(playerCards[0].Item2)));   // Add first card from player's hand to its own hand
+    playerSecondHand.Add(Tuple.Create(playerCards[1].Item1, new List<int>(playerCards[1].Item2)));  // Add second card from player's hand to its own hand
+
+    Console.WriteLine($"--Player's First Hand ({playerFirstCard})--\t\t\t--Player's Second Hand ({playerSecondCard})--");
+    Console.WriteLine($"{playerCards[0].Item1}\t\t\t\t\t\t{playerCards[1].Item1}");
+    Console.WriteLine();
+
+    // Deal second card to each players' hand
+    for (int i = 0; i < 2; i++) {
+        Random dealCard = new Random();
+        List<string> deck = new List<string>(cards.Keys);
+        int index = dealCard.Next(0, deck.Count);
+        string randomCard = deck[index];
+        if (i == 0) {
+            Console.WriteLine($"You are dealt the {randomCard} for your first hand");
+            playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));
+            Thread.Sleep(1000);
+        }
+        else {
+            Console.WriteLine($"You are dealt the {randomCard} for your second hand");
+            playerSecondHand.Add(Tuple.Create(randomCard, cards[randomCard]));
+            Thread.Sleep(1000);
+        }
+    }
+
+    playerFirstHandSum = CalculateBestHand(playerFirstHand);
+    playerSecondHandSum = CalculateBestHand(playerSecondHand);
+    
+    for (int i = 1; i <= 2; i++) {
+        while (playerFirstHandSum <= 21) {
+            Console.Clear();
+            DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+            Console.WriteLine($"Hand {i}: Would you like to (Hit) or (Stand)?");
+            readResult = Console.ReadLine()?.ToLower().Trim();
+            if (readResult == "hit") 
+            {
+                // Draw a random card
+                Random dealCard = new Random();
+                List<string> deck = new List<string>(cards.Keys);
+                int index = dealCard.Next(0, deck.Count);
+                string randomCard = deck[index];
+
+                if (i==1) {
+                    playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));   // Add newly drawn card to player's hand
+                    playerFirstHandSum = CalculateBestHand(playerFirstHand);
+                }
+                else {
+                    playerSecondHand.Add(Tuple.Create(randomCard, cards[randomCard]));
+                    playerSecondHandSum = CalculateBestHand(playerSecondHand);
+                }
+                
+                if (i == 1) {
+                    if (playerFirstHandSum > 21) {
+                    Console.WriteLine();
+                    Console.WriteLine($"\nYou busted.");
+                    Thread.Sleep(1000);
+                    }
+                }
+                else {
+                    if (playerSecondHandSum > 21) {
+                    Console.WriteLine();
+                    Console.WriteLine($"\nYou busted.");
+                    Thread.Sleep(1000);
+                    }
+                }
+            }
+            else if (readResult == "stand") {
+                continue;
+            }
+            else {
+                Console.Clear();
+                Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
+            }
+        }
+    }
+
+    return (playerFirstHand, playerSecondHand);
+}
+
 /*  Calculates best value of hand (handling aces)
     PARAMETERS:
         * List<Tuple<string, List<int>>> cards - Hand of cards (player or dealer)
@@ -398,15 +490,24 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
         * bool - Boolean value that returns (true) if round should continue and (false) if not
         * int playerCardSum - Returns the sum of the player's hand
 */
-(bool, int, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
+(bool, int, List<Tuple<string, List<int>>>?, List<Tuple<string, List<int>>>?, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
 {
     bool stand = false;
     bool canDouble = true;
+    bool canSplit = false;
     bool doubled = false;
+    List<Tuple<string, List<int>>>? playerFirstHand = null;
+    List<Tuple<string, List<int>>>? playerSecondHand = null;
+    int playerFirstHandSum = 0;
+    int playerSecondHandSum = 0;
+    var playerFirstCard = playerCards[0].Item2;
+    var playerSecondCard = playerCards[1].Item2;
     var (blackjack, playerCardSum, dealerCardSum) = CheckBlackJack(playerCards, dealerCards, bet);
-    if (blackjack)
-        return (false, 21, bet);
 
+    if (blackjack)
+        return (false, 21, null, null, bet);
+    if (playerFirstCard == playerSecondCard)
+        canSplit = true;
     while (playerCardSum <= 21 && stand == false)
     {
         if (doubled == true)
@@ -428,9 +529,14 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
             if (hasInsurance == true)
                 canDouble = false;
             // Loop that asks player to hit, double or stand, will continue until player busts or stands
-            if (canDouble == true)
+            if (canDouble == true && canSplit == true)
+                Console.WriteLine("Would you like to (Hit) or (Split) or (Double) or (Stand)?");
+            else if (canDouble == true && canSplit == false)   
                 Console.WriteLine("Would you like to (Hit) or (Double) or (Stand)?");
-            else    
+            else if (canDouble == false && canSplit == true) {
+                Console.WriteLine("Would you like to (Hit) or (Split) or (Stand)?");
+            }
+            else
                 Console.WriteLine("Would you like to (Hit) or (Stand)?");
             readResult = Console.ReadLine()?.ToLower().Trim();
             if (readResult == "hit" || readResult == "double")
@@ -463,12 +569,32 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
                     DisplayDealersHand(dealerCards, dealerCardSum);
                     Console.WriteLine($"\nYou busted.");
                     CheckBalance(balance);
-                    return (false, playerCardSum, bet);
+                    return (false, playerCardSum, null, null, bet);
                 }
 
                 Console.Clear();
                 canDouble = false;
                 validEntry = true;
+            }
+            else if (readResult == "split") {
+                if(canSplit == false) {
+                    Console.WriteLine("You cannot split.");
+                }
+                else {
+                    split = true;
+                    balance -= bet;
+                    bet *= 2;
+                    (playerFirstHand, playerSecondHand) = Split(playerCards, bet);
+                    playerFirstHandSum = CalculateBestHand(playerFirstHand);
+                    playerSecondHandSum = CalculateBestHand(playerSecondHand);
+
+                    if (playerFirstHandSum > 21 && playerSecondHandSum > 21) {
+                        Console.WriteLine("You lose.");
+                        CheckBalance(balance);
+                        return (false, 0, playerFirstHand, playerSecondHand, bet);
+                    }
+                    validEntry = true;
+                }
             }
             else if (readResult == "stand")
             {
@@ -478,18 +604,21 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
             else
             {
                 Console.Clear();
-                if (canDouble == true)
+                if (canDouble == true && split == true)
+                    Console.WriteLine("**Invalid input, please enter (Hit) or (Split) or (Double) or (Stand)**\n");
+                else if (canDouble == true && split == false)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Double) or (Stand)**\n");
-                else {
+                else if (canDouble == false && split == true)
+                    Console.WriteLine("Would you like to (Hit) or (Split) or (Stand)?");
+                else
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
-                }
             }
         } while (validEntry == false);
         if (reset == true)
             break;
     }
 
-    return (true, playerCardSum, bet);
+    return (true, playerCardSum, playerFirstHand, playerSecondHand, bet);
 }
 
 /*  Handling the dealer's turn
@@ -498,105 +627,114 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
         * List<Tuple<string, List<int>>> dealerCards - The dealer's hand
         * int bet - The player's bet
 */
-void DealerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
+void DealerTurn(List<Tuple<string, List<int>>> playerCards, 
+                List<Tuple<string, List<int>>> dealerCards, 
+                List<Tuple<string, List<int>>> playerFirstHand, 
+                List<Tuple<string, List<int>>> playerSecondHand,
+                int bet)
 {
     dealerCardSum = CalculateBestHand(dealerCards); // Calculate dealer's sum before entering loop
-    if (dealerCardSum >= 17 && dealerCardSum <= 20)
-    {
-        if (dealerCardSum > playerCardSum)
-        {
-            Console.Clear();
-            DisplayPlayersHand(playerCards, playerCardSum);
-            Console.WriteLine();
-            DisplayDealersHand(dealerCards, dealerCardSum);
+    if (split == true) {
 
-            Console.WriteLine("\nDealer wins.");
-            CheckBalance(balance);
-        }
-        else if (playerCardSum > dealerCardSum)
-        {
-            Console.Clear();
-            DisplayPlayersHand(playerCards, playerCardSum);
-            Console.WriteLine();
-            DisplayDealersHand(dealerCards, dealerCardSum);
-
-            Console.WriteLine("\nYou win!");
-            balance += bet * 2;
-            CheckBalance(balance);
-        }
-        else if (playerCardSum == dealerCardSum)
-        {
-            Console.Clear();
-            DisplayPlayersHand(playerCards, playerCardSum);
-            Console.WriteLine();
-            DisplayDealersHand(dealerCards, dealerCardSum);
-
-            Console.WriteLine("\nPush.");
-            balance += bet;
-            Console.WriteLine("\nPress Enter to continue");
-            Console.ReadLine();
-        }
     }
-    else
-    {
-        do
+    else if (split == false) {
+        if (dealerCardSum >= 17 && dealerCardSum <= 20)
         {
-            Console.Clear();
-            DisplayPlayersHand(playerCards, playerCardSum);
-            Console.WriteLine();
-            DisplayDealersHand(dealerCards, dealerCardSum);
-
-            Console.WriteLine("\nDealer will now draw a card.");
-            Thread.Sleep(2000);
-
-            // Draw a random card
-            Random dealCard = new Random();
-            List<string> deck = new List<string>(cards.Keys);
-            int index = dealCard.Next(0, deck.Count);
-            string randomCard = deck[index];
-
-            dealerCards.Add(Tuple.Create(randomCard, cards[randomCard]));   // Add newly drawn card to dealer's hand
-
-            dealerCardSum = CalculateBestHand(dealerCards);
-
-            if (dealerCardSum > 16 && dealerCardSum <= 21)
+            if (dealerCardSum > playerCardSum)
             {
                 Console.Clear();
                 DisplayPlayersHand(playerCards, playerCardSum);
                 Console.WriteLine();
                 DisplayDealersHand(dealerCards, dealerCardSum);
 
-                if (dealerCardSum > playerCardSum)
-                {
-                    Console.WriteLine("\nDealer wins.");
-                    CheckBalance(balance);
-                    
-                }
-                else if (playerCardSum > dealerCardSum)
-                {
-                    Console.WriteLine("\nYou win!");
-                    balance += bet * 2;
-                    CheckBalance(balance);
-                }
-                else if (playerCardSum == dealerCardSum)
-                {
-                    Console.WriteLine("\nPush.");
-                    balance += bet;
-                    Console.WriteLine("\nPress Enter to continue");
-                    Console.ReadLine();
-                }
+                Console.WriteLine("\nDealer wins.");
+                CheckBalance(balance);
             }
-            else if (dealerCardSum > 21)
+            else if (playerCardSum > dealerCardSum)
             {
                 Console.Clear();
                 DisplayPlayersHand(playerCards, playerCardSum);
                 Console.WriteLine();
                 DisplayDealersHand(dealerCards, dealerCardSum);
-                Console.WriteLine("\nDealer busted!");
+
+                Console.WriteLine("\nYou win!");
                 balance += bet * 2;
                 CheckBalance(balance);
             }
-        } while (dealerCardSum < 17);
+            else if (playerCardSum == dealerCardSum)
+            {
+                Console.Clear();
+                DisplayPlayersHand(playerCards, playerCardSum);
+                Console.WriteLine();
+                DisplayDealersHand(dealerCards, dealerCardSum);
+
+                Console.WriteLine("\nPush.");
+                balance += bet;
+                Console.WriteLine("\nPress Enter to continue");
+                Console.ReadLine();
+            }
+        }
+        else
+        {
+            do
+            {
+                Console.Clear();
+                DisplayPlayersHand(playerCards, playerCardSum);
+                Console.WriteLine();
+                DisplayDealersHand(dealerCards, dealerCardSum);
+
+                Console.WriteLine("\nDealer will now draw a card.");
+                Thread.Sleep(2000);
+
+                // Draw a random card
+                Random dealCard = new Random();
+                List<string> deck = new List<string>(cards.Keys);
+                int index = dealCard.Next(0, deck.Count);
+                string randomCard = deck[index];
+
+                dealerCards.Add(Tuple.Create(randomCard, cards[randomCard]));   // Add newly drawn card to dealer's hand
+
+                dealerCardSum = CalculateBestHand(dealerCards);
+
+                if (dealerCardSum > 16 && dealerCardSum <= 21)
+                {
+                    Console.Clear();
+                    DisplayPlayersHand(playerCards, playerCardSum);
+                    Console.WriteLine();
+                    DisplayDealersHand(dealerCards, dealerCardSum);
+
+                    if (dealerCardSum > playerCardSum)
+                    {
+                        Console.WriteLine("\nDealer wins.");
+                        CheckBalance(balance);
+                        
+                    }
+                    else if (playerCardSum > dealerCardSum)
+                    {
+                        Console.WriteLine("\nYou win!");
+                        balance += bet * 2;
+                        CheckBalance(balance);
+                    }
+                    else if (playerCardSum == dealerCardSum)
+                    {
+                        Console.WriteLine("\nPush.");
+                        balance += bet;
+                        Console.WriteLine("\nPress Enter to continue");
+                        Console.ReadLine();
+                    }
+                }
+                else if (dealerCardSum > 21)
+                {
+                    Console.Clear();
+                    DisplayPlayersHand(playerCards, playerCardSum);
+                    Console.WriteLine();
+                    DisplayDealersHand(dealerCards, dealerCardSum);
+                    Console.WriteLine("\nDealer busted!");
+                    balance += bet * 2;
+                    CheckBalance(balance);
+                }
+            } while (dealerCardSum < 17);
+        }
     }
 }
 
@@ -614,6 +752,32 @@ void DisplayPlayersHand(List<Tuple<string, List<int>>> playerCards, int playerCa
         Console.WriteLine(playerCard.Item1);
     }
 }
+
+/* Displays player's split hands
+    PARAMETERS:
+        * List<Tuple<string, List<int>>> playerFirstHand - Player's first hand
+        * List<Tuple<string, List<int>>> playerSecondHand - Player's second hand
+        * int playerFirstHandSum - Sum of the player's first hand
+        * int playerSecondHandSum - Sum of the player's second hand
+*/
+void DisplayPlayersSplitHands(List<Tuple<string, List<int>>> playerFirstHand, List<Tuple<string, List<int>>> playerSecondHand, int playerFirstHandSum, int playerSecondHandSum) {
+    Console.WriteLine($"--Player's First Hand ({playerFirstHandSum})--\t\t\t--Player's Second Hand ({playerSecondHandSum})--");
+    
+    // Determine the maximum number of cards in either hand
+    int numberOfCards = Math.Max(playerFirstHand.Count, playerSecondHand.Count);
+
+    // Define a standard width for card names to ensure alignment
+    int cardWidth = 17; // Queen of Diamonds being the longest card name
+
+    // Print each card side by side
+    for (int i = 0; i < numberOfCards; i++) {
+        string firstHandCard = (i < playerFirstHand.Count) ? playerFirstHand[i].Item1 : "";
+        string secondHandCard = (i < playerSecondHand.Count) ? playerSecondHand[i].Item1 : "";
+
+        Console.WriteLine($"{firstHandCard.PadRight(cardWidth)}\t\t\t{secondHandCard.PadRight(cardWidth)}");
+    }
+}
+
 void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCardSum) {
     Console.WriteLine($"--Dealer's Hand ({dealerCardSum})--");
     foreach (var dealerCard in dealerCards)
