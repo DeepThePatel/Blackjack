@@ -17,22 +17,22 @@ var cards = new Dictionary<string, List<int>> {
     {"2 of Spades", new List <int> {2}}, {"3 of Spades", new List <int> {3}}, {"4 of Spades", new List <int> {4}},
     {"5 of Spades", new List <int> {5}}, {"6 of Spades", new List <int> {6}}, {"7 of Spades", new List <int> {7}}, {"8 of Spades", new List <int> {8}},
     {"9 of Spades", new List <int> {9}}, {"10 of Spades", new List <int> {10}}, {"Jack of Spades", new List <int> {10}}, {"Queen of Spades", new List <int> {10}},
-    {"King of Spades", new List <int> {10}}, {"Ace of Spades", new List <int> {1,11}},
+    {"King of Spades", new List <int> {10}}, {"Ace of Spades", new List <int> {11,1}},
 
     {"2 of Clubs", new List <int> {2}}, {"3 of Clubs", new List <int> {3}}, {"4 of Clubs", new List <int> {4}},
     {"5 of Clubs", new List <int> {5}}, {"6 of Clubs", new List <int> {6}}, {"7 of Clubs", new List <int> {7}}, {"8 of Clubs", new List <int> {8}},
     {"9 of Clubs", new List <int> {9}}, {"10 of Clubs", new List <int> {10}}, {"Jack of Clubs", new List <int> {10}}, {"Queen of Clubs", new List <int> {10}},
-    {"King of Clubs", new List <int> {10}}, {"Ace of Clubs", new List <int> {1,11}},
+    {"King of Clubs", new List <int> {10}}, {"Ace of Clubs", new List <int> {11,1}},
 
     {"2 of Hearts", new List <int> {2}}, {"3 of Hearts", new List <int> {3}}, {"4 of Hearts", new List <int> {4}},
     {"5 of Hearts", new List <int> {5}}, {"6 of Hearts", new List <int> {6}}, {"7 of Hearts", new List <int> {7}}, {"8 of Hearts", new List <int> {8}},
     {"9 of Hearts", new List <int> {9}}, {"10 of Hearts", new List <int> {10}}, {"Jack of Hearts", new List <int> {10}}, {"Queen of Hearts", new List <int> {10}},
-    {"King of Hearts", new List <int> {10}}, {"Ace of Hearts", new List <int> {1,11}},
+    {"King of Hearts", new List <int> {10}}, {"Ace of Hearts", new List <int> {11,1}},
 
     {"2 of Diamonds", new List <int> {2}}, {"3 of Diamonds", new List <int> {3}}, {"4 of Diamonds", new List <int> {4}},
     {"5 of Diamonds", new List <int> {5}}, {"6 of Diamonds", new List <int> {6}}, {"7 of Diamonds", new List <int> {7}}, {"8 of Diamonds", new List <int> {8}},
     {"9 of Diamonds", new List <int> {9}}, {"10 of Diamonds", new List <int> {10}}, {"Jack of Diamonds", new List <int> {10}}, {"Queen of Diamonds", new List <int> {10}},
-    {"King of Diamonds", new List <int> {10}}, {"Ace of Diamonds", new List <int> {1,11}}
+    {"King of Diamonds", new List <int> {10}}, {"Ace of Diamonds", new List <int> {11,1}}
 };
 
 while (isPlaying)
@@ -193,8 +193,8 @@ void PlayCasino(string casino, int minBet) {
         int index = dealCard.Next(0, deck.Count);
         string randomCard = deck[index];
 
-        if (i % 2 == 0)
-        {
+        if (i % 2 == 0)     // BREAKPOINT: Set player and dealer cards
+        {                   // BREAKPOINT: Set player cards
             Console.WriteLine($"You are dealt the {randomCard}.");
             playerCards.Add(Tuple.Create(randomCard, cards[randomCard]));
             Thread.Sleep(1000);
@@ -380,7 +380,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
             playerFirstHandSum = CalculateBestHand(playerFirstHand);
             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
             Console.WriteLine($"\nYou are dealt the {randomCard} for your first hand");
-            Thread.Sleep(3000);
+            Thread.Sleep(2500);
         }
         else {
             Console.Clear();
@@ -388,18 +388,15 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
             playerSecondHandSum = CalculateBestHand(playerSecondHand);
             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
             Console.WriteLine($"\nYou are dealt the {randomCard} for your second hand");
-            Thread.Sleep(3000);
+            Thread.Sleep(2500);
         }
     }
-
-    Console.WriteLine("\nPress enter to continue");
-    Console.ReadLine();
 
     playerFirstHandSum = CalculateBestHand(playerFirstHand);
     playerSecondHandSum = CalculateBestHand(playerSecondHand);
     
     for (int i = 0; i < 2; i++) {
-        while (i == 0 ? playerFirstHandSum <= 21 : playerSecondHandSum <= 21) {
+        while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21) {
             Console.Clear();
             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
             Console.WriteLine($"{(i == 0 ? "\nFIRST Hand: Would you like to (Hit) or (Stand)?" : "\nSECOND Hand: Would you like to (Hit) or (Stand)?")}");
@@ -621,7 +618,7 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
                 else if (canDouble == true && split == false)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Double) or (Stand)**\n");
                 else if (canDouble == false && split == true)
-                    Console.WriteLine("Would you like to (Hit) or (Split) or (Stand)?");
+                    Console.WriteLine("**Invalid input, please enter (Hit) or (Split) or (Stand)?**\n");
                 else
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
             }
