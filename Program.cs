@@ -249,7 +249,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 Console.WriteLine("--Dealer's Hand--");
                 Console.WriteLine($"{dealerFirstCard}\nHidden Card");
                 Console.WriteLine();
-                Console.WriteLine($"\nDealer has an Ace, would you like to purchase insurance?\nYou may bet up to ${(balance > maxInsuranceBet ? maxInsuranceBet : balance)}. If you do not want insurance, enter 0.");
+                Console.WriteLine($"Dealer has an Ace, would you like to purchase insurance?\nYou may bet up to ${(balance > maxInsuranceBet ? maxInsuranceBet : balance)}. If you do not want insurance, enter 0.");
                 do
                 {
                     while(validInsuranceNumber == false){
@@ -424,14 +424,18 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 
                 if (i == 0) {
                     if (playerFirstHandSum > 21) {
-                    Console.WriteLine("\nYou busted.");
-                    Thread.Sleep(2500);
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine("\nYou busted.");
+                        Thread.Sleep(2500);
                     }
                 }
                 else {
                     if (playerSecondHandSum > 21) {
-                    Console.WriteLine("\nYou busted.");
-                    Thread.Sleep(2500);
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine("\nYou busted.");
+                        Thread.Sleep(2500);
                     }
                 }
             }
@@ -676,14 +680,14 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards,
                         Console.WriteLine();
                         DisplayDealersHand(dealerCards, dealerCardSum);
                         balance += bet / 2;
-                        Console.WriteLine("\nPush.");
+                        Console.WriteLine("\nThe first hand is a Push.");
                         Thread.Sleep(2500);
                     }
                 }
                 else {
                     if (dealerCardSum > playerSecondHandSum)
                     {
-                        Console.WriteLine("\nDealer wins the second hand.");
+                        Console.WriteLine("Dealer wins the second hand.\n");
                         CheckBalance(balance);
                     }
                     else if (playerSecondHandSum > dealerCardSum) {
@@ -693,7 +697,7 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards,
                     }
                     else if (playerSecondHandSum == dealerCardSum) {
                         balance += bet / 2;
-                        Console.WriteLine("Push.\n");
+                        Console.WriteLine("The second hand is a Push.\n");
                         CheckBalance(balance);
                     }
                 }   
