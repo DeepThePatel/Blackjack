@@ -217,23 +217,6 @@ void PlayCasino(string casino, int minBet) {
         */
     }
 
-    //DEBUGGING - PRINT CARDS RECEIVED BY PLAYER AND DEALER
-    /*  foreach (var playerCard in playerCards) {
-        Console.Write($"{playerCard.Item1} - ");
-        foreach (int value in playerCard.Item2) {
-            Console.Write($"{value} ");
-        }
-        Console.WriteLine();
-    }
-
-    foreach (var dealerCard in dealerCards) {
-        Console.Write($"{dealerCard.Item1} - ");
-        foreach (int value in dealerCard.Item2) {
-            Console.Write($"{value} ");
-        }
-        Console.WriteLine();
-    } */
-
     Console.Clear();
 
     return (playerCards, dealerCards);
@@ -377,8 +360,10 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     playerFirstHand.Add(Tuple.Create(playerCards[0].Item1, new List<int> { playerFirstCard }));   // Add first card from player's hand to its own hand
     playerSecondHand.Add(Tuple.Create(playerCards[1].Item1, new List<int> { playerSecondCard }));  // Add second card from player's hand to its own hand
 
-    Console.WriteLine($"--Player's First Hand--\t\t--Player's Second Hand--");
-    Console.WriteLine($"{playerCards[0].Item1,-17}\t\t{playerCards[1].Item1}");
+    playerFirstHandSum = CalculateBestHand(playerFirstHand);
+    playerSecondHandSum = CalculateBestHand(playerSecondHand);
+
+    DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
     Console.WriteLine();
 
     // Deal second card to each players' hand
@@ -389,14 +374,21 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
         string randomCard = deck[index];
 
         if (i == 0) {
-            Console.WriteLine($"You are dealt the {randomCard} for your first hand");
+            Thread.Sleep(1500);
+            Console.Clear();
             playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));
-            Thread.Sleep(1000);
+            playerFirstHandSum = CalculateBestHand(playerFirstHand);
+            DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+            Console.WriteLine($"\nYou are dealt the {randomCard} for your first hand");
+            Thread.Sleep(3000);
         }
         else {
-            Console.WriteLine($"You are dealt the {randomCard} for your second hand");
+            Console.Clear();
             playerSecondHand.Add(Tuple.Create(randomCard, cards[randomCard]));
-            Thread.Sleep(1000);
+            playerSecondHandSum = CalculateBestHand(playerSecondHand);
+            DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+            Console.WriteLine($"\nYou are dealt the {randomCard} for your second hand");
+            Thread.Sleep(3000);
         }
     }
 
@@ -406,11 +398,11 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     playerFirstHandSum = CalculateBestHand(playerFirstHand);
     playerSecondHandSum = CalculateBestHand(playerSecondHand);
     
-    for (int i = 1; i <= 2; i++) {
-        while (i == 1 ? playerFirstHandSum <= 21 : playerSecondHandSum <= 21) {
+    for (int i = 0; i < 2; i++) {
+        while (i == 0 ? playerFirstHandSum <= 21 : playerSecondHandSum <= 21) {
             Console.Clear();
             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
-            Console.WriteLine($"\nHand {i}: Would you like to (Hit) or (Stand)?");
+            Console.WriteLine($"{(i == 0 ? "\nFIRST Hand: Would you like to (Hit) or (Stand)?" : "\nSECOND Hand: Would you like to (Hit) or (Stand)?")}");
             readResult = Console.ReadLine()?.ToLower().Trim();
             if (readResult == "hit") 
             {
@@ -420,7 +412,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 int index = dealCard.Next(0, deck.Count);
                 string randomCard = deck[index];
 
-                if (i == 1) {
+                if (i == 0) {
                     playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));   // Add newly drawn card to player's hand
                     playerFirstHandSum = CalculateBestHand(playerFirstHand);
                 }
@@ -429,7 +421,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                     playerSecondHandSum = CalculateBestHand(playerSecondHand);
                 }
                 
-                if (i == 1) {
+                if (i == 0) {
                     if (playerFirstHandSum > 21) {
                     Console.WriteLine();
                     Console.WriteLine($"\nYou busted.");
@@ -663,24 +655,47 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards,
                 if (i == 0) {
                     if (dealerCardSum > playerFirstHandSum)
                     {
-                    Console.Clear();
-                    DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
-                    Console.WriteLine();
-                    DisplayDealersHand(dealerCards, dealerCardSum);
-
-                    Console.WriteLine("\nDealer wins first hand.");
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine();
+                        DisplayDealersHand(dealerCards, dealerCardSum);
+                        Console.WriteLine("\nDealer wins the first hand.");
+                        Thread.Sleep(2500);
+                    }
+                    else if (playerFirstHandSum > dealerCardSum) {
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine();
+                        DisplayDealersHand(dealerCards, dealerCardSum);
+                        balance += bet;
+                        Console.WriteLine("You win the first hand!");
+                        Thread.Sleep(2500);
+                    }
+                    else if (playerFirstHandSum == dealerCardSum) {
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine();
+                        DisplayDealersHand(dealerCards, dealerCardSum);
+                        balance += bet / 2;
+                        Console.WriteLine("Push.");
+                        Thread.Sleep(2500);
                     }
                 }
                 else {
                     if (dealerCardSum > playerSecondHandSum)
                     {
-                    Console.Clear();
-                    DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
-                    Console.WriteLine();
-                    DisplayDealersHand(dealerCards, dealerCardSum);
-
-                    Console.WriteLine("\nDealer wins second hand.");
-                    CheckBalance(balance);
+                        Console.WriteLine("\nDealer wins the second hand.");
+                        CheckBalance(balance);
+                    }
+                    else if (playerSecondHandSum > dealerCardSum) {
+                        balance += bet;
+                        Console.WriteLine("You win the second hand!\n");
+                        CheckBalance(balance);
+                    }
+                    else if (playerSecondHandSum == dealerCardSum) {
+                        balance += bet / 2;
+                        Console.WriteLine("Push.\n");
+                        CheckBalance(balance);
                     }
                 }   
             }
@@ -885,6 +900,13 @@ void DisplayPlayersHand(List<Tuple<string, List<int>>> playerCards, int playerCa
         Console.WriteLine(playerCard.Item1);
     }
 }
+void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCardSum) {
+    Console.WriteLine($"--Dealer's Hand ({dealerCardSum})--");
+    foreach (var dealerCard in dealerCards)
+    {
+        Console.WriteLine(dealerCard.Item1);
+    }
+}
 
 /* Displays player's split hands
     PARAMETERS:
@@ -908,14 +930,6 @@ void DisplayPlayersSplitHands(List<Tuple<string, List<int>>> playerFirstHand, Li
         string secondHandCard = (i < playerSecondHand.Count) ? playerSecondHand[i].Item1 : "";
 
         Console.WriteLine($"{firstHandCard.PadRight(cardWidth)}\t\t\t{secondHandCard.PadRight(cardWidth)}");
-    }
-}
-
-void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCardSum) {
-    Console.WriteLine($"--Dealer's Hand ({dealerCardSum})--");
-    foreach (var dealerCard in dealerCards)
-    {
-        Console.WriteLine(dealerCard.Item1);
     }
 }
 
