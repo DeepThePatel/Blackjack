@@ -300,7 +300,10 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     {
         if (dealerCardSum == 21)
         {
-            Console.WriteLine("\nPush");
+            DisplayPlayersHand(playerCards, playerCardSum);
+            Console.WriteLine();
+            DisplayDealersHand(dealerCards, dealerCardSum);
+            Console.WriteLine("\nPush.");
             balance += bet;
             Console.WriteLine("\nPress Enter to continue");
             Console.ReadLine();
@@ -356,6 +359,7 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     List<Tuple<string, List<int>>> playerSecondHand = new List<Tuple<string, List<int>>>();
     int playerFirstCard = playerCards[0].Item2[0];
     int playerSecondCard = playerCards[1].Item2[0];
+    bool invalidEntry = false;
 
     playerFirstHand.Add(Tuple.Create(playerCards[0].Item1, new List<int> { playerFirstCard }));   // Add first card from player's hand to its own hand
     playerSecondHand.Add(Tuple.Create(playerCards[1].Item1, new List<int> { playerSecondCard }));  // Add second card from player's hand to its own hand
@@ -395,11 +399,14 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
     for (int i = 0; i < 2; i++) {
         while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21) {
             Console.Clear();
+            if (invalidEntry == true)
+                Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
             Console.WriteLine($"{(i == 0 ? "\nFIRST Hand: Would you like to (Hit) or (Stand)?" : "\nSECOND Hand: Would you like to (Hit) or (Stand)?")}");
             readResult = Console.ReadLine()?.ToLower().Trim();
             if (readResult == "hit") 
             {
+                invalidEntry = false;
                 // Draw a random card
                 Random dealCard = new Random();
                 List<string> deck = new List<string>(cards.Keys);
@@ -429,11 +436,11 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 }
             }
             else if (readResult == "stand") {
+                invalidEntry = false;
                 break;
             }
             else {
-                Console.Clear();
-                Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
+                invalidEntry = true;
             }
         }
     }
@@ -580,7 +587,7 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
             else if (readResult == "split") {
                 if(canSplit == false) {
                     Console.Clear();
-                    Console.WriteLine("**Invalid input. You cannot split**");
+                    Console.WriteLine("**Invalid input. You cannot split**\n");
                     break;
                 }
                 else {
@@ -608,11 +615,11 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
             else
             {
                 Console.Clear();
-                if (canDouble == true && split == true)
+                if (canDouble == true && canSplit == true)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Split) or (Double) or (Stand)**\n");
-                else if (canDouble == true && split == false)
+                else if (canDouble == true && canSplit == false)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Double) or (Stand)**\n");
-                else if (canDouble == false && split == true)
+                else if (canDouble == false && canSplit == true)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Split) or (Stand)?**\n");
                 else
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
@@ -660,7 +667,7 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards,
                         Console.WriteLine();
                         DisplayDealersHand(dealerCards, dealerCardSum);
                         balance += bet;
-                        Console.WriteLine("You win the first hand!");
+                        Console.WriteLine("\nYou win the first hand!");
                         Thread.Sleep(2500);
                     }
                     else if (playerFirstHandSum == dealerCardSum) {
@@ -669,7 +676,7 @@ void DealerTurn(List<Tuple<string, List<int>>> playerCards,
                         Console.WriteLine();
                         DisplayDealersHand(dealerCards, dealerCardSum);
                         balance += bet / 2;
-                        Console.WriteLine("Push.");
+                        Console.WriteLine("\nPush.");
                         Thread.Sleep(2500);
                     }
                 }
