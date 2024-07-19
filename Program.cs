@@ -124,8 +124,8 @@ void PlayCasino(string casino, int minBet) {
             }
 
             var (playerCards, dealerCards) = DealCards();
-            List<Tuple<string, List<int>>>? playerFirstHand = null;
-            List<Tuple<string, List<int>>>? playerSecondHand = null;
+            List<Tuple<string, List<int>>>? playerFirstHand = new List<Tuple<string, List<int>>>();     // List to hold player's first split hand
+            List<Tuple<string, List<int>>>? playerSecondHand = new List<Tuple<string, List<int>>>();    // List to hold player's second split hand
 
             (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
             if (playingGames == false)
@@ -391,9 +391,6 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
             Thread.Sleep(2500);
         }
     }
-
-    playerFirstHandSum = CalculateBestHand(playerFirstHand);
-    playerSecondHandSum = CalculateBestHand(playerSecondHand);
     
     for (int i = 0; i < 2; i++) {
         while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21) {
@@ -420,16 +417,14 @@ int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<str
                 
                 if (i == 0) {
                     if (playerFirstHandSum > 21) {
-                    Console.WriteLine();
-                    Console.WriteLine($"\nYou busted.");
-                    Thread.Sleep(1000);
+                    Console.WriteLine("\nYou busted.");
+                    Thread.Sleep(2500);
                     }
                 }
                 else {
                     if (playerSecondHandSum > 21) {
-                    Console.WriteLine();
-                    Console.WriteLine($"\nYou busted.");
-                    Thread.Sleep(1000);
+                    Console.WriteLine("\nYou busted.");
+                    Thread.Sleep(2500);
                     }
                 }
             }
@@ -490,15 +485,15 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
         * bool - Boolean value that returns (true) if round should continue and (false) if not
         * int playerCardSum - Returns the sum of the player's hand
 */
-(bool, int, List<Tuple<string, List<int>>>?, List<Tuple<string, List<int>>>?, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
+(bool, int, List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
 {
     bool stand = false;
     bool canDouble = true;
     bool canSplit = false;
     bool doubled = false;
     bool splitCompleted = false;
-    List<Tuple<string, List<int>>>? playerFirstHand = null;
-    List<Tuple<string, List<int>>>? playerSecondHand = null;
+    List<Tuple<string, List<int>>> playerFirstHand = new List<Tuple<string, List<int>>>();
+    List<Tuple<string, List<int>>> playerSecondHand = new List<Tuple<string, List<int>>>();
     int playerFirstHandSum = 0;
     int playerSecondHandSum = 0;
     var playerFirstCard = playerCards[0].Item2;
@@ -506,7 +501,7 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
     var (blackjack, playerCardSum, dealerCardSum) = CheckBlackJack(playerCards, dealerCards, bet);
 
     if (blackjack)
-        return (false, 21, null, null, bet);
+        return (false, 21, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
     if (playerFirstCard.SequenceEqual(playerSecondCard))    // Compare if integer values of the two cards are equal
         canSplit = true;
     while (playerCardSum <= 21 && stand == false)
@@ -575,7 +570,7 @@ int CalculateBestHand(List<Tuple<string, List<int>>> cards)
                     DisplayDealersHand(dealerCards, dealerCardSum);
                     Console.WriteLine($"\nYou busted.");
                     CheckBalance(balance);
-                    return (false, playerCardSum, null, null, bet);
+                    return (false, playerCardSum, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
                 }
 
                 Console.Clear();
