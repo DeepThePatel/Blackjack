@@ -1,4 +1,8 @@
-﻿﻿/* Developed by Deep Patel (2024) */
+﻿/* Developed by Deep Patel (2024) */
+
+/* using System;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration; */
 
 public class Program {
     private static double balance = 5000;
@@ -36,72 +40,75 @@ public class Program {
         {"King of Diamonds", new List <int> {10}}, {"Ace of Diamonds", new List <int> {11,1}}
     };
 
-    public static void Main() {
-        while (isPlaying)
+    public static void Main() 
     {
-        Console.Clear();
-        Console.WriteLine("Welcome to Blackjack!");
-        if (reset == true)
-            balance = 500;
-        Console.WriteLine($"Your current balance: ${balance}.\n");
-        Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
-        Console.WriteLine("Enter Q to exit.");
+        //Establishing SQL connection
 
-        // Check if casino choice is valid or if player exits
-        do
+        while (isPlaying)
         {
-            readResult = Console.ReadLine()?.ToLower().Trim();
-            if (readResult != null)
+            Console.Clear();
+            Console.WriteLine("Welcome to Blackjack!");
+            if (reset == true)
+                balance = 500;
+            Console.WriteLine($"Your current balance: ${balance}.\n");
+            Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
+            Console.WriteLine("Enter Q to exit.");
+
+            // Check if casino choice is valid or if player exits
+            do
             {
-                if (readResult == "1" || readResult == "2" || readResult == "3")
+                readResult = Console.ReadLine()?.ToLower().Trim();
+                if (readResult != null)
                 {
-                    casino = readResult;
-                    validEntry = true;
-                    isPlayingCasino = true;
+                    if (readResult == "1" || readResult == "2" || readResult == "3")
+                    {
+                        casino = readResult;
+                        validEntry = true;
+                        isPlayingCasino = true;
+                    }
+                    else if (readResult == "q")
+                    {
+                        isPlaying = false;
+                        validEntry = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Invalid entry.");
+                        Console.WriteLine("\rChoose either 1, 2, or 3.");
+                    }
                 }
-                else if (readResult == "q")
-                {
-                    isPlaying = false;
-                    validEntry = true;
-                }
-                else
-                {
-                    Console.WriteLine("Error: Invalid entry.");
-                    Console.WriteLine("\rChoose either 1, 2, or 3.");
-                }
+            } while (validEntry == false);
+
+            // Necessary to validate player quitting the game
+            if (isPlaying == false)
+            {
+                break;
             }
-        } while (validEntry == false);
 
-        // Necessary to validate player quitting the game
-        if (isPlaying == false)
-        {
-            break;
+            Console.Clear();
+
+            switch (casino)
+            {
+                // Las Vegas
+                case "1":
+                    PlayCasino("Las Vegas", 50);
+                    break;
+
+                // Monte Carlo
+                case "2":
+                    PlayCasino("Monte Carlo", 200);
+                    break;
+
+                // Dubai    
+                case "3":
+                    PlayCasino("Dubai", 500);
+                    break;
+            }
         }
-
-        Console.Clear();
-
-        switch (casino)
-        {
-            // Las Vegas
-            case "1":
-                PlayCasino("Las Vegas", 50);
-                break;
-
-            // Monte Carlo
-            case "2":
-                PlayCasino("Monte Carlo", 200);
-                break;
-
-            // Dubai    
-            case "3":
-                PlayCasino("Dubai", 500);
-                break;
-        }
-    }
     }
     
 
-    /* Main method, playing the casino
+    /* Playing the casino
         PARAMETERS:
             * string casino - Name of the casino
             * int minBet - Casino's minimum bet
