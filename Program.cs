@@ -1,8 +1,8 @@
 ﻿/* Developed by Deep Patel (2024) */
 
-/* using System;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration; */
+using System;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 public class Program {
     private static double balance = 5000;
@@ -43,9 +43,43 @@ public class Program {
     public static void Main() 
     {
         //Establishing SQL connection
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        IConfiguration config = builder.Build();
+
+        // Get the connection string
+        string connectionString = config.GetConnectionString("DefaultConnection");
+
+        // Connect to the database and execute a query
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            try
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM Blackjack_db"; // Query
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        Console.Write($"{reader.GetName(i)}: {reader.GetValue(i)} ");
+                    }
+                    Console.WriteLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
 
         while (isPlaying)
         {
+            Console.ReadLine(); // To test database output
             Console.Clear();
             Console.WriteLine("Welcome to Blackjack!");
             if (reset == true)
