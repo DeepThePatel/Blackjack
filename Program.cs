@@ -54,16 +54,9 @@ public class Program {
         // Get the connection string
         string connectionString = config.GetConnectionString("DefaultConnection");
 
-        Login(connectionString);
-
-/*       while (reader.Read())
-        {
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                Console.Write($"{reader.GetName(i)}: {reader.GetValue(i)} ");
-            }
-            Console.WriteLine();
-        }*/
+        bool registered = Register();
+        if (registered == false)
+            Login(connectionString);
 
         while (isPlaying)
         {
@@ -128,36 +121,105 @@ public class Program {
             }
         }
     }
-
-    static void Login(string connectionString)
+    /* Register screen
+     *  RETURN VALUES:
+     *      bool - (True) if registering a new account (False) otherwise
+     */
+    static bool Register()
     {
-        bool loginSuccess = false;
-        do
+        Console.WriteLine("Blackjack v1.4.0");
+        Console.WriteLine("(1) Login)\n(2) Register");
+        while (true)
         {
-            Console.WriteLine("If this is your first time, simply enter your desired username and password.\n");
-            Console.Write("Username: ");
-            readResult = Console.ReadLine()?.ToLower().Trim();
-            if (readResult != null && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length <= 20)
+            readResult = Console.ReadLine().Trim();
+            if (readResult.Equals("1"))
             {
-                if (UsernameExists(readResult, connectionString))
-                {
-                    GetPassword(readResult);
-                    loginSuccess = true;
-                    Console.Clear();
-                }
-                else
-                {
-                    GetPassword();
-                    loginSuccess = true;
-                    Console.Clear();
+                Console.Clear();
+                return false;
+            }
+            // TODO: Add ability to Quit register screen
+            else if (readResult.Equals("2"))
+            {
+                while (true) {
+                    Console.WriteLine("--Register--")
+                    Console.Write("Username: ");
+                    readResult = Console.ReadLine()?;
+                    string username = readResult.ToLower();
+                    if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
+                    {
+                        if(UsernameExists(username, connectionString))
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Error: Username is already taken\n")
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            RegisterPassword(readResult);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error: Invalid username. Username must be between 6-20 alphanumeric characters or underscores\n")
+                    }
                 }
             }
             else
             {
                 Console.Clear();
-                Console.WriteLine("Invalid username. Username must not contain more than 20 alphanumeric characters or underscores.")
+                Console.WriteLine("Error: Invalid entry. Please choose either (1) to Login or (2) to Register\n");
             }
-        } while (loginSuccess == false);
+        }
+    }
+
+    //TODO: Add ability to clear fields
+    //TODO: Add ability to Quit login screen
+    /* Login screen
+        PARAMETERS:
+            * string connectionString - Connection String
+     */
+    static void Login(string connectionString)
+    {
+        Console.WriteLine("--Login--");
+        Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
+        Console.Write("Username: ");
+        readResult = Console.ReadLine();
+        string username = readResult.ToLower();
+        if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
+        {
+            // TODO: Test this try-catch block
+            try
+            {
+                if (UsernameExists(username, connectionString))
+                {
+                    LoginPassword(readResult);
+                    Console.WriteLine("Login successful, welcome back!");
+                    Thread.Sleep(1500);
+                    Console.Clear();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+            else
+        }
+        else if (readResult.Equals("q"))
+        {
+            Register();
+        }
+        else if (readResult.Equals("c"))
+        {
+            Console.Clear();
+            Login(connectionString);
+        }
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("Error: Invalid username\n")
+        }
     }
 
     /* Checks if username exists in database
@@ -201,48 +263,67 @@ public class Program {
         PARAMETERS:
             * string username - User's username
      */
-    static void GetPassword(string username)
+    static void LoginPassword(string username)
     {
         bool validPassword = false;
+        // TODO: Finish implementing this
         do
         {
+            Console.WriteLine("--Login--");
+            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.WriteLine($"Username: {username}");
             Console.Write("Password: ");
-            readResult = Console.ReadLine();
+            readResult = Console.ReadLine().ToLower().Trim();
             
         } while (validPassword == false);
     }
 
-    // Get password with new account
-    static void GetPassword()
+    /* Create password for new account
+     *  PARAMETERS:
+     *      string username - User's username
+     */
+    static void RegisterPassword(string username)
     {
-        bool validPassword = false;
-        do
+        while (true)
         {
+            // TODO: Add ability to clear fields
+            Console.WriteLine("--Register--");
+            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.WriteLine($"Username: {username}");
             Console.Write("Password: ");
             readResult = Console.ReadLine();
-            if (readResult != null && Regex.IsMatch(readResult, @"^[a-zA-Z0-9]+$") && readResult.Length >= 8 && readResult.Length <= 50)
+            string password = readResult.ToLower();
+            if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9!@#$%^&*]+$") && readResult.Length >= 8 && readResult.Length <= 50)
             {
+                // TODO: Create while loop to check reentered password
                 Console.Write("Reenter Password: ");
-                string? reenterPassword = Console.WriteLine();
-                if (readResult.Equals(reenterPassword) {
+                string? reenterPassword = Console.ReadLine().ToLower(); ;
+                if (password.Equals(reenterPassword) {
+                    // TODO: Add username and password to database
+                    Console.Clear();
                     Console.WriteLine("Account successfully created!");
                     Thread.Sleep(1500);
-                    validPassword = true;
+                    return;
                 }
                 else
                 {
                     Console.Clear();
-                    Console.WriteLine("Invalid password.");
+                    Console.WriteLine("Error: Passwords do not match\n");
                 }
+            }
+            else if (readResult.Equals("q") || readResult.Equals("Q") {
+                Register();
+            }
+            else if (readResult.Equals("c") || readResult.Equals("C") {
+                   // TODO: Implement this
             }
             else
             {
                 Console.Clear();
-                Console.WriteLine("Invalid password. Password must be at least 8 alphanumeric characters.\n");
+                Console.WriteLine("Error: Invalid password. Password must contain at least 8 alphanumeric or special (!,@,#,$,%,^,&,*) characters.\n");
             }
-        } while (validPassword == false);
+        }
+            
     }
 
     /* Playing the casino
