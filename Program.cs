@@ -3,10 +3,13 @@
 using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
+
 
 public class Program {
     private static double balance = 5000;
     private static string? readResult;
+    private static string query = "";
     private static string casino = "";
     private static bool validEntry = false;
     private static bool isPlaying = true;
@@ -51,31 +54,16 @@ public class Program {
         // Get the connection string
         string connectionString = config.GetConnectionString("DefaultConnection");
 
-        // Connect to the database and execute a query
-        using (SqlConnection connection = new SqlConnection(connectionString))
+        Login(connectionString);
+
+/*       while (reader.Read())
         {
-            try
+            for (int i = 0; i < reader.FieldCount; i++)
             {
-                connection.Open();
-
-                string query = "SELECT * FROM Blackjack_db"; // Query
-                SqlCommand command = new SqlCommand(query, connection);
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        Console.Write($"{reader.GetName(i)}: {reader.GetValue(i)} ");
-                    }
-                    Console.WriteLine();
-                }
+                Console.Write($"{reader.GetName(i)}: {reader.GetValue(i)} ");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-        }
+            Console.WriteLine();
+        }*/
 
         while (isPlaying)
         {
@@ -140,7 +128,122 @@ public class Program {
             }
         }
     }
+
+    static void Login(string connectionString)
+    {
+        bool loginSuccess = false;
+        do
+        {
+            Console.WriteLine("If this is your first time, simply enter your desired username and password.\n");
+            Console.Write("Username: ");
+            readResult = Console.ReadLine()?.ToLower().Trim();
+            if (readResult != null && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length <= 20)
+            {
+                if (UsernameExists(readResult, connectionString))
+                {
+                    GetPassword(readResult);
+                    loginSuccess = true;
+                    Console.Clear();
+                }
+                else
+                {
+                    GetPassword();
+                    loginSuccess = true;
+                    Console.Clear();
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid username. Username must not contain more than 20 alphanumeric characters or underscores.")
+            }
+        } while (loginSuccess == false);
+    }
+
+    /* Checks if username exists in database
+        PARAMETERS:
+            * string username - User entered username
+            * string connectionString - Connecting string for database
+        RETURN VALUES:
+            * bool - Whether username exists in database or not
+     */
+    static bool UsernameExists(string username, string connectionString)
+    {
+        query = "SELECT 1 FROM Blackjack_db WHERE username = @username";
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            try
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    // Add parameter to the command
+                    command.Parameters.AddWithValue("@username", username);
+
+                    // Execute query
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        return reader.HasRows;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
+        }
+    }
     
+    /* Get password with existing username
+        PARAMETERS:
+            * string username - User's username
+     */
+    static void GetPassword(string username)
+    {
+        bool validPassword = false;
+        do
+        {
+            Console.WriteLine($"Username: {username}");
+            Console.Write("Password: ");
+            readResult = Console.ReadLine();
+            
+        } while (validPassword == false);
+    }
+
+    // Get password with new account
+    static void GetPassword()
+    {
+        bool validPassword = false;
+        do
+        {
+            Console.WriteLine($"Username: {username}");
+            Console.Write("Password: ");
+            readResult = Console.ReadLine();
+            if (readResult != null && Regex.IsMatch(readResult, @"^[a-zA-Z0-9]+$") && readResult.Length >= 8 && readResult.Length <= 50)
+            {
+                Console.Write("Reenter Password: ");
+                string? reenterPassword = Console.WriteLine();
+                if (readResult.Equals(reenterPassword) {
+                    Console.WriteLine("Account successfully created!");
+                    Thread.Sleep(1500);
+                    validPassword = true;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Invalid password.");
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid password. Password must be at least 8 alphanumeric characters.\n");
+            }
+        } while (validPassword == false);
+    }
 
     /* Playing the casino
         PARAMETERS:
