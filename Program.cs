@@ -52,9 +52,9 @@ public class Program {
         IConfiguration config = builder.Build();
 
         // Get the connection string
-        string connectionString = config.GetConnectionString("DefaultConnection");
+        string? connectionString = config.GetConnectionString("DefaultConnection");
 
-        bool registered = Register();
+        bool registered = Home(connectionString);
         if (registered == false)
             Login(connectionString);
 
@@ -121,50 +121,31 @@ public class Program {
             }
         }
     }
-    /* Register screen
-     *  RETURN VALUES:
-     *      bool - (True) if registering a new account (False) otherwise
+    /* Home screen
+        PARAMETERS:
+            * string connectionString - Connection string
+        RETURN VALUES:
+            * bool - (True) if registering a new account (False) otherwise
      */
-    static bool Register()
+    static bool Home(string connectionString)
     {
-        Console.WriteLine("Blackjack v1.4.0");
-        Console.WriteLine("(1) Login)\n(2) Register");
-        while (true)
+        validEntry = false;
+        while (validEntry == false)
         {
-            readResult = Console.ReadLine().Trim();
+            Console.Clear();
+            Console.WriteLine("--Blackjack v1.4.0");
+            Console.WriteLine("(1) Login\n(2) Register");
+            readResult = Console.ReadLine()?.Trim();
             if (readResult.Equals("1"))
             {
                 Console.Clear();
                 return false;
             }
-            // TODO: Add ability to Quit register screen
             else if (readResult.Equals("2"))
             {
-                while (true) {
-                    Console.WriteLine("--Register--")
-                    Console.Write("Username: ");
-                    readResult = Console.ReadLine()?;
-                    string username = readResult.ToLower();
-                    if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
-                    {
-                        if(UsernameExists(username, connectionString))
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Error: Username is already taken\n")
-                        }
-                        else
-                        {
-                            Console.Clear();
-                            RegisterPassword(readResult);
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Error: Invalid username. Username must be between 6-20 alphanumeric characters or underscores\n")
-                    }
-                }
+                Console.Clear();
+                Register(connectionString);
+                return true;
             }
             else
             {
@@ -172,10 +153,126 @@ public class Program {
                 Console.WriteLine("Error: Invalid entry. Please choose either (1) to Login or (2) to Register\n");
             }
         }
+        return false;
     }
 
-    //TODO: Add ability to clear fields
-    //TODO: Add ability to Quit login screen
+    /* Register screen
+        PARAMETERS:
+            * string connectionString - Connection string
+     */
+    static void Register(string connectionString)
+    {
+        while (validEntry == false)
+        {
+            Console.WriteLine("--Register--");
+            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
+            Console.Write("Username: ");
+            readResult = Console.ReadLine();
+            string? username = readResult.ToLower();
+            // Username only allows characters, numbers, and underscores
+            if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
+            {
+                if (UsernameExists(username, connectionString))
+                {
+                    Console.Clear();
+                    Console.WriteLine("Error: Username is already taken\n");
+                }
+                else
+                {
+                    Console.Clear();
+                    RegisterPassword(readResult, connectionString); // Pass readResult to display case insensitive username
+                    validEntry = true;
+                }
+            }
+            else if (readResult.Equals("q") || readResult.Equals("Q"))
+            {
+                Home(connectionString);
+                validEntry = true;
+            }
+            else if (readResult.Equals("c") || readResult.Equals("C"))
+            {
+                Console.Clear();
+                continue;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Error: Invalid username. Username must be between 6-20 alphanumeric characters or underscores\n");
+            }
+        }       
+    }
+
+    /* Create password for new account
+        PARAMETERS:
+            * string username - User's username
+            * string connectionString - Connection string
+     */
+    static void RegisterPassword(string username, string connectionString)
+    {
+        validEntry = false;
+        while (validEntry == false)
+        {
+            Console.WriteLine("--Register--");
+            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
+            Console.WriteLine($"Username: {username}");
+            Console.Write("Password: ");
+            string? password = ReadPassword();
+            // Password may contain characters, numbers, or special characters (!,@,#,$,%,^,&,*,(,))
+            if (!string.IsNullOrEmpty(password) && Regex.IsMatch(password, @"^[a-zA-Z0-9!@#$%^&*()]+$") && password.Length >= 8 && password.Length <= 50)
+            {
+                string? reenterPassword;
+                do
+                {
+                    Console.Clear();
+                    Console.WriteLine("--Register--");
+                    Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
+                    Console.WriteLine($"Username: {username}");
+                    Console.WriteLine($"Password: {MaskPassword(password)}");
+                    Console.Write("Reenter Password: ");
+                    reenterPassword = ReadPassword();
+                    if (password.Equals(reenterPassword))
+                    {
+                        // TODO: Add username and password to database
+                        Console.Clear();
+                        Console.WriteLine("Account successfully created!");
+                        Thread.Sleep(1500);
+                        return;
+                    }
+                    else if (reenterPassword.Equals("q") || reenterPassword.Equals("Q"))
+                    {
+                        Home(connectionString);
+                        validEntry = true;
+                    }
+                    else if (reenterPassword.Equals("c") || reenterPassword.Equals("C"))
+                    {
+                        Register(connectionString);
+                        validEntry = true;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error: Passwords do not match\n");
+                    }
+                } while (password != reenterPassword);
+            }
+            else if (password.Equals("q") || password.Equals("Q"))
+            {
+                Home(connectionString);
+                validEntry = true;
+            }
+            else if (password.Equals("c") || password.Equals("C"))
+            {
+                Register(connectionString);
+                validEntry = true;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Error: Invalid password. Password must contain at least 8 alphanumeric or special (!,@,#,$,%,^,&,*,(,)) characters.\n");
+            }
+        }
+    }
+
     /* Login screen
         PARAMETERS:
             * string connectionString - Connection String
@@ -204,11 +301,10 @@ public class Program {
             {
                 Console.WriteLine("Error: " + e.Message);
             }
-            else
         }
         else if (readResult.Equals("q"))
         {
-            Register();
+            Home(connectionString);
         }
         else if (readResult.Equals("c"))
         {
@@ -218,8 +314,29 @@ public class Program {
         else
         {
             Console.Clear();
-            Console.WriteLine("Error: Invalid username\n")
+            Console.WriteLine("Error: Invalid username\n");
         }
+    }
+    
+    /* Get password with existing username
+        PARAMETERS:
+            * string username - User's username
+            * string connectionString - Connection string
+        RETURN VALUES:
+            * bool - (True) if username exists (False) otherwise
+     */
+    static void LoginPassword(string username)
+    {
+        bool validPassword = false;
+        // TODO: Finish implementing this
+        do
+        {
+            Console.WriteLine("--Login--");
+            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
+            Console.WriteLine($"Username: {username}");
+            Console.Write("Password: ");
+            string? password = ReadPassword();            
+        } while (validPassword == false);
     }
 
     /* Checks if username exists in database
@@ -258,72 +375,44 @@ public class Program {
             }
         }
     }
-    
-    /* Get password with existing username
-        PARAMETERS:
-            * string username - User's username
+
+    /* Method to hide user's typed password
+        RETURN VALUES:
+            * string - User's password
      */
-    static void LoginPassword(string username)
+    static string ReadPassword()
     {
-        bool validPassword = false;
-        // TODO: Finish implementing this
+        string password = string.Empty;
+        ConsoleKeyInfo keyInfo;
+
         do
         {
-            Console.WriteLine("--Login--");
-            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
-            Console.WriteLine($"Username: {username}");
-            Console.Write("Password: ");
-            readResult = Console.ReadLine().ToLower().Trim();
-            
-        } while (validPassword == false);
+            keyInfo = Console.ReadKey(true);
+            if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+            {
+                password += keyInfo.KeyChar;
+                Console.Write("*");
+            }
+            else if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0)
+            {
+                password = password.Substring(0, password.Length - 1);
+                Console.Write("\b \b");
+            }
+        } while (keyInfo.Key != ConsoleKey.Enter);
+
+        Console.WriteLine();
+        return password;
     }
 
-    /* Create password for new account
+    /* Method to return masked password for UX purposes
      *  PARAMETERS:
-     *      string username - User's username
+            * string password - User's password
+        RETURN VALUES:
+            * string - User's hidden password
      */
-    static void RegisterPassword(string username)
+    static string MaskPassword(string password)
     {
-        while (true)
-        {
-            // TODO: Add ability to clear fields
-            Console.WriteLine("--Register--");
-            Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
-            Console.WriteLine($"Username: {username}");
-            Console.Write("Password: ");
-            readResult = Console.ReadLine();
-            string password = readResult.ToLower();
-            if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9!@#$%^&*]+$") && readResult.Length >= 8 && readResult.Length <= 50)
-            {
-                // TODO: Create while loop to check reentered password
-                Console.Write("Reenter Password: ");
-                string? reenterPassword = Console.ReadLine().ToLower(); ;
-                if (password.Equals(reenterPassword) {
-                    // TODO: Add username and password to database
-                    Console.Clear();
-                    Console.WriteLine("Account successfully created!");
-                    Thread.Sleep(1500);
-                    return;
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Error: Passwords do not match\n");
-                }
-            }
-            else if (readResult.Equals("q") || readResult.Equals("Q") {
-                Register();
-            }
-            else if (readResult.Equals("c") || readResult.Equals("C") {
-                   // TODO: Implement this
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Error: Invalid password. Password must contain at least 8 alphanumeric or special (!,@,#,$,%,^,&,*) characters.\n");
-            }
-        }
-            
+        return new string('*', password.Length);
     }
 
     /* Playing the casino
@@ -332,37 +421,37 @@ public class Program {
             * int minBet - Casino's minimum bet
     */
     static void PlayCasino(string casino, int minBet) {
-        while (isPlayingCasino)
-        {
-            bool playingGames = true;
-            // Checking termination of round
-            while (playingGames)
+            while (isPlayingCasino)
             {
-                Console.Clear();
-                Console.WriteLine($"Welcome to {casino}!");
-                if (reset == true) {    // Check if player ran out of money, reset with balance of $500
-                    balance = 500;
-                    reset = false;
-                } 
-                Console.WriteLine($"Your balance is ${balance}");
-                var (bet, quit) = EnterBet(minBet);
-                if (quit == true)
+                bool playingGames = true;
+                // Checking termination of round
+                while (playingGames)
                 {
-                    isPlayingCasino = false;
-                    break;
+                    Console.Clear();
+                    Console.WriteLine($"Welcome to {casino}!");
+                    if (reset == true) {    // Check if player ran out of money, reset with balance of $500
+                        balance = 500;
+                        reset = false;
+                    } 
+                    Console.WriteLine($"Your balance is ${balance}");
+                    var (bet, quit) = EnterBet(minBet);
+                    if (quit == true)
+                    {
+                        isPlayingCasino = false;
+                        break;
+                    }
+
+                    var (playerCards, dealerCards) = DealCards();
+                    List<Tuple<string, List<int>>>? playerFirstHand = new List<Tuple<string, List<int>>>();     // List to hold player's first split hand
+                    List<Tuple<string, List<int>>>? playerSecondHand = new List<Tuple<string, List<int>>>();    // List to hold player's second split hand
+
+                    (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
+                    if (playingGames == false)
+                        break;
+                    DealerTurn(playerCards, dealerCards, playerFirstHand, playerSecondHand, bet);   // Null reference is OK since not all hands are split
                 }
-
-                var (playerCards, dealerCards) = DealCards();
-                List<Tuple<string, List<int>>>? playerFirstHand = new List<Tuple<string, List<int>>>();     // List to hold player's first split hand
-                List<Tuple<string, List<int>>>? playerSecondHand = new List<Tuple<string, List<int>>>();    // List to hold player's second split hand
-
-                (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
-                if (playingGames == false)
-                    break;
-                DealerTurn(playerCards, dealerCards, playerFirstHand, playerSecondHand, bet);   // Null reference is OK since not all hands are split
             }
         }
-    }
 
     /*  Validate user entered bet amount
         PARAMETERS:
