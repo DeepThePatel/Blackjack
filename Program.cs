@@ -12,6 +12,7 @@ public class Program {
     private static string query = "";
     private static string casino = "";
     private static bool validEntry = false;
+    private static bool isLoggedIn = false;
     private static bool isPlaying = true;
     private static bool isPlayingCasino = true;
     private static bool reset = false;
@@ -54,13 +55,15 @@ public class Program {
         // Get the connection string
         string? connectionString = config.GetConnectionString("DefaultConnection");
 
-        bool registered = Home(connectionString);
-        if (registered == false)
-            Login(connectionString);
-
+        // Loop main menu until user logs in successfully
+        while (isLoggedIn == false)
+        {
+            Console.Clear();
+            Home(connectionString);
+        }
+            
         while (isPlaying)
         {
-            Console.ReadLine(); // To test database output
             Console.Clear();
             Console.WriteLine("Welcome to Blackjack!");
             if (reset == true)
@@ -127,25 +130,26 @@ public class Program {
         RETURN VALUES:
             * bool - (True) if registering a new account (False) otherwise
      */
-    static bool Home(string connectionString)
+    static void Home(string connectionString)
     {
         validEntry = false;
         while (validEntry == false)
         {
-            Console.Clear();
             Console.WriteLine("--Blackjack v1.4.0--\n");
             Console.WriteLine("(1) Login\n(2) Register");
             readResult = Console.ReadLine()?.Trim();
             if (readResult.Equals("1"))
             {
                 Console.Clear();
-                return false;
+                Login(connectionString);
             }
             else if (readResult.Equals("2"))
             {
                 Console.Clear();
                 Register(connectionString);
-                return true;
+            }
+            else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase)) {
+                Environment.Exit(0);
             }
             else
             {
@@ -153,7 +157,6 @@ public class Program {
                 Console.WriteLine("Error: Invalid entry. Please choose either (1) to Login or (2) to Register");
             }
         }
-        return false;
     }
 
     /* Register screen
@@ -183,12 +186,13 @@ public class Program {
                     validEntry = true;
                 }
             }
-            else if (readResult.Equals("q") || readResult.Equals("Q"))
+            else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
             {
+                Console.Clear();
                 Home(connectionString);
                 validEntry = true;
             }
-            else if (readResult.Equals("c") || readResult.Equals("C"))
+            else if (readResult.Equals("c", StringComparison.OrdinalIgnoreCase))
             {
                 Console.Clear();
                 continue;
@@ -259,6 +263,7 @@ public class Program {
                                 if (rowsAffected > 0)
                                 {
                                     Console.Clear();
+                                    isLoggedIn = true;
                                     Console.WriteLine("Account successfully created!");
                                     Thread.Sleep(1500);
                                     return;
@@ -280,12 +285,13 @@ public class Program {
                         }
                     }
                 }
-                else if (reenterPassword.Equals("q") || reenterPassword.Equals("Q"))
+                else if (reenterPassword.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
+                    Console.Clear();
                     Home(connectionString);
                     validEntry = true;
                 }
-                else if (reenterPassword.Equals("c") || reenterPassword.Equals("C"))
+                else if (reenterPassword.Equals("c", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
                     Register(connectionString);
@@ -297,13 +303,15 @@ public class Program {
                     Console.WriteLine("Error: Passwords do not match");
                 }
             }
-            else if (password.Equals("q") || password.Equals("Q"))
+            else if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
             {
+                Console.Clear();
                 Home(connectionString);
                 validEntry = true;
             }
-            else if (password.Equals("c") || password.Equals("C"))
+            else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
             {
+                Console.Clear();
                 Register(connectionString);
                 validEntry = true;
             }
@@ -353,6 +361,7 @@ public class Program {
             }
             else if (readResult.Equals("q"))
             {
+                Console.Clear();
                 Home(connectionString);
                 break;
             }
@@ -391,13 +400,15 @@ public class Program {
             string? password = ReadPassword();
             
             // Quitting and clearing fields
-            if (password.Equals("q") || password.Equals("Q")) {
+            if (password.Equals("q", StringComparison.OrdinalIgnoreCase)) {
+                Console.Clear();
                 Home(connectionString);
                 break;
             }
-            else if (password.Equals("c") || password.Equals("C"))
+            else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
             {
-                LoginPassword(username, connectionString);
+                Console.Clear();
+                Login(connectionString);
                 break;
             }
 
@@ -426,10 +437,12 @@ public class Program {
 
                                 if (password_db != null && password == password_db)
                                 {
-                                    Console.WriteLine("Login successful, welcome back!");
-                                    Thread.Sleep(1500);
                                     // Retrieve and set the balance
-                                    balance = reader.GetDouble(reader.GetOrdinal("balance"));
+                                    decimal balance_db = reader.GetDecimal(reader.GetOrdinal("balance"));
+                                    balance = (double)balance_db;
+                                    isLoggedIn = true;
+                                    Console.WriteLine("Login successful, welcome back!");
+                                    Thread.Sleep(1500);  
                                     Console.Clear();
                                     validPassword = true;
                                 }
