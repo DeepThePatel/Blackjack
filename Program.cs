@@ -6,12 +6,15 @@ using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
 
-public class Program {
+public class Program
+{
     private static double balance = 5000;
     private static string? readResult;
     private static string query = "";
     private static string casino = "";
     private static bool validEntry = false;
+    private static string? username;
+    private static string? connectionString;
     private static bool isLoggedIn = false;
     private static bool isPlaying = true;
     private static bool isPlayingCasino = true;
@@ -44,16 +47,16 @@ public class Program {
         {"King of Diamonds", new List <int> {10}}, {"Ace of Diamonds", new List <int> {11,1}}
     };
 
-    public static void Main() 
+    public static void Main()
     {
-        //Establishing SQL connection
+        //Establishing SQL database connection
         var builder = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
         IConfiguration config = builder.Build();
 
         // Get the connection string
-        string? connectionString = config.GetConnectionString("DefaultConnection");
+        connectionString = config.GetConnectionString("DefaultConnection");
 
         // Loop main menu until user logs in successfully
         while (isLoggedIn == false)
@@ -61,13 +64,11 @@ public class Program {
             Console.Clear();
             Home(connectionString);
         }
-            
+
         while (isPlaying)
         {
             Console.Clear();
             Console.WriteLine("Welcome to Blackjack!");
-            if (reset == true)
-                balance = 500;
             Console.WriteLine($"Your current balance: ${balance}.\n");
             Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
             Console.WriteLine("Enter Q to exit.");
@@ -150,7 +151,8 @@ public class Program {
                 Register(connectionString);
                 validEntry = true;
             }
-            else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase)) {
+            else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
+            {
                 Environment.Exit(0);
             }
             else
@@ -173,7 +175,7 @@ public class Program {
             Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.Write("Username: ");
             readResult = Console.ReadLine();
-            string? username = readResult.ToLower();
+            username = readResult.ToLower();
             // Username only allows characters, numbers, and underscores
             if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
             {
@@ -205,7 +207,7 @@ public class Program {
                 Console.Clear();
                 Console.WriteLine("Error: Invalid username. Username must be between 6-20 alphanumeric characters or underscores");
             }
-        }       
+        }
     }
 
     /* Create password for new account
@@ -224,7 +226,7 @@ public class Program {
             Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.WriteLine($"Username: {username}");
             if (passwordEntered == false)
-            {          
+            {
                 Console.Write("Password: ");
                 password = ReadPassword();
                 passwordEntered = true;
@@ -338,7 +340,7 @@ public class Program {
             Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.Write("Username: ");
             readResult = Console.ReadLine();
-            string username = readResult.ToLower();
+            username = readResult.ToLower();
             if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
             {
                 try
@@ -378,9 +380,9 @@ public class Program {
                 Console.WriteLine("Error: Invalid username");
             }
         } while (validUsername == false);
-            
+
     }
-    
+
     /* Get password with existing username
         PARAMETERS:
             * string username - User's username
@@ -399,9 +401,10 @@ public class Program {
             Console.WriteLine($"Username: {username}");
             Console.Write("Password: ");
             string? password = ReadPassword();
-            
+
             // Quitting and clearing fields
-            if (password.Equals("q", StringComparison.OrdinalIgnoreCase)) {
+            if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
+            {
                 Console.Clear();
                 Home(connectionString);
                 break;
@@ -443,7 +446,7 @@ public class Program {
                                     balance = (double)balance_db;
                                     isLoggedIn = true;
                                     Console.WriteLine("Login successful, welcome back!");
-                                    Thread.Sleep(1500);  
+                                    Thread.Sleep(1500);
                                     Console.Clear();
                                     validPassword = true;
                                 }
@@ -470,7 +473,7 @@ public class Program {
                     connection.Close();
                 }
             }
-            
+
         } while (validPassword == false);
     }
 
@@ -511,7 +514,7 @@ public class Program {
             }
             finally
             {
-                connection.Close(); 
+                connection.Close();
             }
         }
     }
@@ -560,38 +563,40 @@ public class Program {
             * string casino - Name of the casino
             * int minBet - Casino's minimum bet
     */
-    static void PlayCasino(string casino, int minBet) {
-            while (isPlayingCasino)
+    static void PlayCasino(string casino, int minBet)
+    {
+        while (isPlayingCasino)
+        {
+            bool playingGames = true;
+            // Checking termination of round
+            while (playingGames)
             {
-                bool playingGames = true;
-                // Checking termination of round
-                while (playingGames)
-                {
-                    Console.Clear();
-                    Console.WriteLine($"Welcome to {casino}!");
-                    if (reset == true) {    // Check if player ran out of money, reset with balance of $500
-                        balance = 500;
-                        reset = false;
-                    } 
-                    Console.WriteLine($"Your balance is ${balance}");
-                    var (bet, quit) = EnterBet(minBet);
-                    if (quit == true)
-                    {
-                        isPlayingCasino = false;
-                        break;
-                    }
-
-                    var (playerCards, dealerCards) = DealCards();
-                    List<Tuple<string, List<int>>>? playerFirstHand = new List<Tuple<string, List<int>>>();     // List to hold player's first split hand
-                    List<Tuple<string, List<int>>>? playerSecondHand = new List<Tuple<string, List<int>>>();    // List to hold player's second split hand
-
-                    (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
-                    if (playingGames == false)
-                        break;
-                    DealerTurn(playerCards, dealerCards, playerFirstHand, playerSecondHand, bet);   // Null reference is OK since not all hands are split
+                Console.Clear();
+                Console.WriteLine($"Welcome to {casino}!");
+                if (reset == true)
+                {    // Check if player was reset
+                    balance = 500;
+                    reset = false;
                 }
+                Console.WriteLine($"Your balance is ${balance}");
+                var (bet, quit) = EnterBet(minBet);
+                if (quit == true)
+                {
+                    isPlayingCasino = false;
+                    break;
+                }
+
+                var (playerCards, dealerCards) = DealCards();
+                List<Tuple<string, List<int>>>? playerFirstHand = new List<Tuple<string, List<int>>>();     // List to hold player's first split hand
+                List<Tuple<string, List<int>>>? playerSecondHand = new List<Tuple<string, List<int>>>();    // List to hold player's second split hand
+
+                (playingGames, playerCardSum, playerFirstHand, playerSecondHand, bet) = PlayerTurn(playerCards, dealerCards, bet);
+                if (playingGames == false)
+                    break;
+                DealerTurn(playerCards, dealerCards, playerFirstHand, playerSecondHand, bet);   // Null reference is OK since not all hands are split
             }
         }
+    }
 
     /*  Validate user entered bet amount
         PARAMETERS:
@@ -688,20 +693,23 @@ public class Program {
         RETURN VALUES:
             * insuranceBet - Player's insurance bet
     */
-    static int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<string, List<int>>> playerCards,int bet) {
+    static int CheckForInsurance(List<Tuple<string, List<int>>> dealerCards, List<Tuple<string, List<int>>> playerCards, int bet)
+    {
         var dealerFirstCard = dealerCards[0].Item1;
-        int maxInsuranceBet = bet/2;
+        int maxInsuranceBet = bet / 2;
         int insuranceBet = 0;
         bool validInsuranceNumber = false;
         playerCardSum = CalculateBestHand(playerCards);
 
-        if (playerCardSum != 21) {
+        if (playerCardSum != 21)
+        {
             if (dealerFirstCard == "Ace of Spades" ||
             dealerFirstCard == "Ace of Clubs" ||
             dealerFirstCard == "Ace of Hearts" ||
-            dealerFirstCard == "Ace of Diamonds") 
+            dealerFirstCard == "Ace of Diamonds")
             {
-                if (balance > 0) {
+                if (balance > 0)
+                {
                     DisplayPlayersHand(playerCards, playerCardSum);
                     Console.WriteLine();
                     Console.WriteLine("--Dealer's Hand--");
@@ -710,7 +718,8 @@ public class Program {
                     Console.WriteLine($"Dealer has an Ace, would you like to purchase insurance?\nYou may bet up to ${(balance > maxInsuranceBet ? maxInsuranceBet : balance)}. If you do not want insurance, enter 0.");
                     do
                     {
-                        while(validInsuranceNumber == false){
+                        while (validInsuranceNumber == false)
+                        {
                             readResult = Console.ReadLine()?.ToLower().Trim();
                             validInsuranceNumber = int.TryParse(readResult, out insuranceBet);
                             if (validInsuranceNumber == false || insuranceBet > maxInsuranceBet)
@@ -718,11 +727,13 @@ public class Program {
                                 validInsuranceNumber = false;
                                 Console.WriteLine($"\nInvalid entry. Insurance bet must be between 1 and {(balance > maxInsuranceBet ? maxInsuranceBet : balance)} or 0 for no insurance.");
                             }
-                            else {
+                            else
+                            {
                                 validInsuranceNumber = true;
                             }
                         }
-                        if(insuranceBet == 0) {
+                        if (insuranceBet == 0)
+                        {
                             insuranceBet = 0;
                         }
                         else
@@ -730,7 +741,7 @@ public class Program {
                             hasInsurance = true;
                             validEntry = true;
                         }
-                    } while (validEntry == false); 
+                    } while (validEntry == false);
                 }
             }
         }
@@ -749,7 +760,8 @@ public class Program {
             * int playerCardSum - The sum of the player's hand
             * int dealerCardSum - The sum of the dealer's hand
     */
-    static (bool, int, int) CheckBlackJack(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet) {
+    static (bool, int, int) CheckBlackJack(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
+    {
         playerCardSum = CalculateBestHand(playerCards);
         dealerCardSum = CalculateBestHand(dealerCards);
         int insurance = CheckForInsurance(dealerCards, playerCards, bet);
@@ -774,7 +786,7 @@ public class Program {
                 DisplayDealersHand(dealerCards, dealerCardSum);
                 Console.WriteLine("\nBLACKJACK!");
                 balance += bet * 2.5;
-                CheckBalance(balance);
+                CheckBalance(balance,username,connectionString);
                 return (true, playerCardSum, dealerCardSum);
             }
         }
@@ -787,15 +799,17 @@ public class Program {
             Console.WriteLine();
 
             Console.WriteLine("Dealer has a blackjack.");
-            if (insurance > 0) {
+            if (insurance > 0)
+            {
                 Console.WriteLine("You won insurance!");
                 balance += bet + (insurance * 2);
             }
-            CheckBalance(balance);
-            
+            CheckBalance(balance,username,connectionString);
+
             return (true, playerCardSum, dealerCardSum);
         }
-        else {
+        else
+        {
             balance -= insurance;
         }
 
@@ -811,7 +825,8 @@ public class Program {
             * List<Tuple<string, List<int>>> - Player's first hand
             * List<Tuple<string, List<int>>> - Player's second hand
     */
-    static (List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>) Split(List<Tuple<string, List<int>>> playerCards) {
+    static (List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>) Split(List<Tuple<string, List<int>>> playerCards)
+    {
         Console.Clear();
         List<Tuple<string, List<int>>> playerFirstHand = new List<Tuple<string, List<int>>>();
         List<Tuple<string, List<int>>> playerSecondHand = new List<Tuple<string, List<int>>>();
@@ -829,13 +844,15 @@ public class Program {
         Console.WriteLine();
 
         // Deal second card to each players' hand
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++)
+        {
             List<string> deck = new List<string>(cards.Keys);
             Random dealCard = new Random();
             int index = dealCard.Next(0, deck.Count);
             string randomCard = deck[index];
 
-            if (i == 0) {
+            if (i == 0)
+            {
                 Thread.Sleep(1500);
                 Console.Clear();
                 playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));
@@ -844,7 +861,8 @@ public class Program {
                 Console.WriteLine($"\nYou are dealt the {randomCard} for your first hand");
                 Thread.Sleep(2500);
             }
-            else {
+            else
+            {
                 Console.Clear();
                 playerSecondHand.Add(Tuple.Create(randomCard, cards[randomCard]));
                 playerSecondHandSum = CalculateBestHand(playerSecondHand);
@@ -853,16 +871,18 @@ public class Program {
                 Thread.Sleep(2500);
             }
         }
-        
-        for (int i = 0; i < 2; i++) {
-            while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21) {
+
+        for (int i = 0; i < 2; i++)
+        {
+            while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21)
+            {
                 Console.Clear();
                 if (invalidEntry == true)
                     Console.WriteLine("**Invalid input, please enter (Hit) or (Stand)**\n");
                 DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
                 Console.WriteLine($"{(i == 0 ? "\nFIRST Hand: Would you like to (Hit) or (Stand)?" : "\nSECOND Hand: Would you like to (Hit) or (Stand)?")}");
                 readResult = Console.ReadLine()?.ToLower().Trim();
-                if (readResult == "hit") 
+                if (readResult == "hit")
                 {
                     invalidEntry = false;
                     // Draw a random card
@@ -871,25 +891,31 @@ public class Program {
                     int index = dealCard.Next(0, deck.Count);
                     string randomCard = deck[index];
 
-                    if (i == 0) {
+                    if (i == 0)
+                    {
                         playerFirstHand.Add(Tuple.Create(randomCard, cards[randomCard]));   // Add newly drawn card to player's hand
                         playerFirstHandSum = CalculateBestHand(playerFirstHand);
                     }
-                    else {
+                    else
+                    {
                         playerSecondHand.Add(Tuple.Create(randomCard, cards[randomCard]));
                         playerSecondHandSum = CalculateBestHand(playerSecondHand);
                     }
-                    
-                    if (i == 0) {
-                        if (playerFirstHandSum > 21) {
+
+                    if (i == 0)
+                    {
+                        if (playerFirstHandSum > 21)
+                        {
                             Console.Clear();
                             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
                             Console.WriteLine("\nYou busted.");
                             Thread.Sleep(2500);
                         }
                     }
-                    else {
-                        if (playerSecondHandSum > 21) {
+                    else
+                    {
+                        if (playerSecondHandSum > 21)
+                        {
                             Console.Clear();
                             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
                             Console.WriteLine("\nYou busted.");
@@ -897,11 +923,13 @@ public class Program {
                         }
                     }
                 }
-                else if (readResult == "stand") {
+                else if (readResult == "stand")
+                {
                     invalidEntry = false;
                     break;
                 }
-                else {
+                else
+                {
                     invalidEntry = true;
                 }
             }
@@ -976,7 +1004,7 @@ public class Program {
         while (playerCardSum <= 21 && stand == false)
         {
             if (splitCompleted == true)
-                    break;
+                break;
             if (doubled == true)
                 break;
             playerCardSum = CalculateBestHand(playerCards);
@@ -1000,9 +1028,10 @@ public class Program {
                 // Menu iteration logic
                 if (canDouble == true && canSplit == true)
                     Console.WriteLine("Would you like to (Hit) or (Split) or (Double) or (Stand)?");
-                else if (canDouble == true && canSplit == false)   
+                else if (canDouble == true && canSplit == false)
                     Console.WriteLine("Would you like to (Hit) or (Double) or (Stand)?");
-                else if (canDouble == false && canSplit == true) {
+                else if (canDouble == false && canSplit == true)
+                {
                     Console.WriteLine("Would you like to (Hit) or (Split) or (Stand)?");
                 }
                 else
@@ -1011,12 +1040,14 @@ public class Program {
                 readResult = Console.ReadLine()?.ToLower().Trim();
                 if (readResult == "hit" || readResult == "double")
                 {
-                    if (readResult == "double" && canDouble == false) {
+                    if (readResult == "double" && canDouble == false)
+                    {
                         Console.Clear();
                         Console.WriteLine("**Invalid input. You cannot double**\n");
                         break;
                     }
-                    if (readResult == "double") {
+                    if (readResult == "double")
+                    {
                         balance -= bet;
                         bet *= 2;
                         doubled = true;
@@ -1038,7 +1069,7 @@ public class Program {
                         Console.WriteLine();
                         DisplayDealersHand(dealerCards, dealerCardSum);
                         Console.WriteLine($"\nYou busted.");
-                        CheckBalance(balance);
+                        CheckBalance(balance,username,connectionString);
                         return (false, playerCardSum, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
                     }
 
@@ -1046,13 +1077,16 @@ public class Program {
                     canDouble = false;
                     validEntry = true;
                 }
-                else if (readResult == "split") {
-                    if(canSplit == false) {
+                else if (readResult == "split")
+                {
+                    if (canSplit == false)
+                    {
                         Console.Clear();
                         Console.WriteLine("**Invalid input. You cannot split**\n");
                         break;
                     }
-                    else {
+                    else
+                    {
                         split = true;
                         balance -= bet;
                         bet *= 2;
@@ -1060,9 +1094,10 @@ public class Program {
                         playerFirstHandSum = CalculateBestHand(playerFirstHand);
                         playerSecondHandSum = CalculateBestHand(playerSecondHand);
 
-                        if (playerFirstHandSum > 21 && playerSecondHandSum > 21) {
+                        if (playerFirstHandSum > 21 && playerSecondHandSum > 21)
+                        {
                             Console.WriteLine("Dealer wins.");
-                            CheckBalance(balance);
+                            CheckBalance(balance,username,connectionString);
                             return (false, 0, playerFirstHand, playerSecondHand, bet);
                         }
                         splitCompleted = true;
@@ -1100,20 +1135,23 @@ public class Program {
             * List<Tuple<string, List<int>>> dealerCards - The dealer's hand
             * int bet - The player's bet
     */
-    static void DealerTurn(List<Tuple<string, List<int>>> playerCards, 
-                    List<Tuple<string, List<int>>> dealerCards, 
-                    List<Tuple<string, List<int>>> playerFirstHand, 
+    static void DealerTurn(List<Tuple<string, List<int>>> playerCards,
+                    List<Tuple<string, List<int>>> dealerCards,
+                    List<Tuple<string, List<int>>> playerFirstHand,
                     List<Tuple<string, List<int>>> playerSecondHand,
                     int bet)
     {
         dealerCardSum = CalculateBestHand(dealerCards); // Calculate dealer's sum before entering loop
         playerFirstHandSum = CalculateBestHand(playerFirstHand);
         playerSecondHandSum = CalculateBestHand(playerSecondHand);
-        if (split == true) {
+        if (split == true)
+        {
             if (dealerCardSum >= 17 && dealerCardSum <= 20)
             {
-                for (int i = 0; i < 2; i++) {
-                    if (i == 0) {
+                for (int i = 0; i < 2; i++)
+                {
+                    if (i == 0)
+                    {
                         if (dealerCardSum > playerFirstHandSum)
                         {
                             Console.Clear();
@@ -1123,7 +1161,8 @@ public class Program {
                             Console.WriteLine("\nDealer wins the first hand.");
                             Thread.Sleep(2500);
                         }
-                        else if (playerFirstHandSum > dealerCardSum) {
+                        else if (playerFirstHandSum > dealerCardSum)
+                        {
                             Console.Clear();
                             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
                             Console.WriteLine();
@@ -1132,7 +1171,8 @@ public class Program {
                             Console.WriteLine("\nYou win the first hand!");
                             Thread.Sleep(2500);
                         }
-                        else if (playerFirstHandSum == dealerCardSum) {
+                        else if (playerFirstHandSum == dealerCardSum)
+                        {
                             Console.Clear();
                             DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
                             Console.WriteLine();
@@ -1142,23 +1182,26 @@ public class Program {
                             Thread.Sleep(2500);
                         }
                     }
-                    else {
+                    else
+                    {
                         if (dealerCardSum > playerSecondHandSum)
                         {
                             Console.WriteLine("Dealer wins the second hand.\n");
-                            CheckBalance(balance);
+                            CheckBalance(balance,username,connectionString);
                         }
-                        else if (playerSecondHandSum > dealerCardSum) {
+                        else if (playerSecondHandSum > dealerCardSum)
+                        {
                             balance += bet;
                             Console.WriteLine("You win the second hand!\n");
-                            CheckBalance(balance);
+                            CheckBalance(balance,username,connectionString);
                         }
-                        else if (playerSecondHandSum == dealerCardSum) {
+                        else if (playerSecondHandSum == dealerCardSum)
+                        {
                             balance += bet / 2;
                             Console.WriteLine("The second hand is a Push.\n");
-                            CheckBalance(balance);
+                            CheckBalance(balance,username,connectionString);
                         }
-                    }   
+                    }
                 }
             }
             else
@@ -1183,70 +1226,74 @@ public class Program {
 
                     dealerCardSum = CalculateBestHand(dealerCards);
 
-                        if (dealerCardSum >= 17 && dealerCardSum <= 21)
+                    if (dealerCardSum >= 17 && dealerCardSum <= 21)
+                    {
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine();
+                        DisplayDealersHand(dealerCards, dealerCardSum);
+                        for (int i = 0; i < 2; i++)
                         {
-                            Console.Clear();
-                            DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
-                            Console.WriteLine();
-                            DisplayDealersHand(dealerCards, dealerCardSum);
-                            for (int i = 0; i < 2; i++) {
-                                if (i == 0) {
-                                    if (dealerCardSum > playerFirstHandSum)
-                                    {
-                                        Console.WriteLine("\nDealer wins the first hand.");
-                                        Thread.Sleep(2500);
-                                        
-                                    }
-                                    else if (playerFirstHandSum > dealerCardSum)
-                                    {
-                                        Console.WriteLine("\nYou win the first hand!");
-                                        balance += bet;
-                                        Thread.Sleep(2500);
-                                    }
-                                    else if (playerFirstHandSum == dealerCardSum)
-                                    {
-                                        Console.WriteLine("\nPush.");
-                                        balance += bet / 2;
-                                        Console.WriteLine("\nPress Enter to continue");
-                                        Console.ReadLine();
-                                    }
+                            if (i == 0)
+                            {
+                                if (dealerCardSum > playerFirstHandSum)
+                                {
+                                    Console.WriteLine("\nDealer wins the first hand.");
+                                    Thread.Sleep(2500);
+
                                 }
-                                else {
-                                    if (dealerCardSum > playerSecondHandSum)
-                                    {
-                                        Console.WriteLine("Dealer wins the second hand.");
-                                        CheckBalance(balance);
-                                        
-                                    }
-                                    else if (playerSecondHandSum > dealerCardSum)
-                                    {
-                                        Console.WriteLine("\nYou win the second hand!");
-                                        balance += bet;
-                                        CheckBalance(balance);
-                                    }
-                                    else if (playerSecondHandSum == dealerCardSum)
-                                    {
-                                        Console.WriteLine("\nPush.");
-                                        balance += bet / 2;
-                                        CheckBalance(balance);
-                                    }
-                                }          
-                            }                     
+                                else if (playerFirstHandSum > dealerCardSum)
+                                {
+                                    Console.WriteLine("\nYou win the first hand!");
+                                    balance += bet;
+                                    Thread.Sleep(2500);
+                                }
+                                else if (playerFirstHandSum == dealerCardSum)
+                                {
+                                    Console.WriteLine("\nPush.");
+                                    balance += bet / 2;
+                                    Console.WriteLine("\nPress Enter to continue");
+                                    Console.ReadLine();
+                                }
+                            }
+                            else
+                            {
+                                if (dealerCardSum > playerSecondHandSum)
+                                {
+                                    Console.WriteLine("Dealer wins the second hand.");
+                                    CheckBalance(balance,username,connectionString);
+
+                                }
+                                else if (playerSecondHandSum > dealerCardSum)
+                                {
+                                    Console.WriteLine("\nYou win the second hand!");
+                                    balance += bet;
+                                    CheckBalance(balance,username,connectionString);
+                                }
+                                else if (playerSecondHandSum == dealerCardSum)
+                                {
+                                    Console.WriteLine("\nPush.");
+                                    balance += bet / 2;
+                                    CheckBalance(balance,username,connectionString);
+                                }
+                            }
                         }
-                        else if (dealerCardSum > 21)
-                        {
-                            Console.Clear();
-                            DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
-                            Console.WriteLine();
-                            DisplayDealersHand(dealerCards, dealerCardSum);
-                            Console.WriteLine("\nDealer busted!");
-                            balance += bet * 2;
-                            CheckBalance(balance);
-                        }
+                    }
+                    else if (dealerCardSum > 21)
+                    {
+                        Console.Clear();
+                        DisplayPlayersSplitHands(playerFirstHand, playerSecondHand, playerFirstHandSum, playerSecondHandSum);
+                        Console.WriteLine();
+                        DisplayDealersHand(dealerCards, dealerCardSum);
+                        Console.WriteLine("\nDealer busted!");
+                        balance += bet * 2;
+                        CheckBalance(balance,username,connectionString);
+                    }
                 } while (dealerCardSum < 17);
             }
         }
-        else if (split == false) {
+        else if (split == false)
+        {
             if (dealerCardSum >= 17 && dealerCardSum <= 20)
             {
                 if (dealerCardSum > playerCardSum)
@@ -1257,7 +1304,7 @@ public class Program {
                     DisplayDealersHand(dealerCards, dealerCardSum);
 
                     Console.WriteLine("\nDealer wins.");
-                    CheckBalance(balance);
+                    CheckBalance(balance,username,connectionString);
                 }
                 else if (playerCardSum > dealerCardSum)
                 {
@@ -1268,7 +1315,7 @@ public class Program {
 
                     Console.WriteLine("\nYou win!");
                     balance += bet * 2;
-                    CheckBalance(balance);
+                    CheckBalance(balance,username,connectionString);
                 }
                 else if (playerCardSum == dealerCardSum)
                 {
@@ -1315,14 +1362,14 @@ public class Program {
                         if (dealerCardSum > playerCardSum)
                         {
                             Console.WriteLine("\nDealer wins.");
-                            CheckBalance(balance);
-                            
+                            CheckBalance(balance,username,connectionString);
+
                         }
                         else if (playerCardSum > dealerCardSum)
                         {
                             Console.WriteLine("\nYou win!");
                             balance += bet * 2;
-                            CheckBalance(balance);
+                            CheckBalance(balance,username,connectionString);
                         }
                         else if (playerCardSum == dealerCardSum)
                         {
@@ -1340,7 +1387,7 @@ public class Program {
                         DisplayDealersHand(dealerCards, dealerCardSum);
                         Console.WriteLine("\nDealer busted!");
                         balance += bet * 2;
-                        CheckBalance(balance);
+                        CheckBalance(balance,username,connectionString);
                     }
                 } while (dealerCardSum < 17);
             }
@@ -1354,14 +1401,16 @@ public class Program {
             * List<Tuple<string, List<int>>> dealerCards - Dealer's hand
             * int dealerCardSum - Sum of dealer's hand
     */
-    static void DisplayPlayersHand(List<Tuple<string, List<int>>> playerCards, int playerCardSum) {
+    static void DisplayPlayersHand(List<Tuple<string, List<int>>> playerCards, int playerCardSum)
+    {
         Console.WriteLine($"--Player's Hand ({playerCardSum})--");
         foreach (var playerCard in playerCards)
         {
             Console.WriteLine(playerCard.Item1);
         }
     }
-    static void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCardSum) {
+    static void DisplayDealersHand(List<Tuple<string, List<int>>> dealerCards, int dealerCardSum)
+    {
         Console.WriteLine($"--Dealer's Hand ({dealerCardSum})--");
         foreach (var dealerCard in dealerCards)
         {
@@ -1376,9 +1425,10 @@ public class Program {
             * int playerFirstHandSum - Sum of the player's first hand
             * int playerSecondHandSum - Sum of the player's second hand
     */
-    static void DisplayPlayersSplitHands(List<Tuple<string, List<int>>> playerFirstHand, List<Tuple<string, List<int>>> playerSecondHand, int playerFirstHandSum, int playerSecondHandSum) {
+    static void DisplayPlayersSplitHands(List<Tuple<string, List<int>>> playerFirstHand, List<Tuple<string, List<int>>> playerSecondHand, int playerFirstHandSum, int playerSecondHandSum)
+    {
         Console.WriteLine($"--Player's First Hand ({playerFirstHandSum})--\t\t--Player's Second Hand ({playerSecondHandSum})--");
-        
+
         // Determine the maximum number of cards in either hand
         int numberOfCards = Math.Max(playerFirstHand.Count, playerSecondHand.Count);
 
@@ -1386,7 +1436,8 @@ public class Program {
         int cardWidth = 17; // Queen of Diamonds being the longest card name
 
         // Print each card side by side
-        for (int i = 0; i < numberOfCards; i++) {
+        for (int i = 0; i < numberOfCards; i++)
+        {
             string firstHandCard = (i < playerFirstHand.Count) ? playerFirstHand[i].Item1 : "";
             string secondHandCard = (i < playerSecondHand.Count) ? playerSecondHand[i].Item1 : "";
 
@@ -1394,29 +1445,71 @@ public class Program {
         }
     }
 
-    // Resets player's balance to $500 if their balance is 0
-    static void ResetMoney() {
-        Console.WriteLine("\nYou are out of money!");
-        Thread.Sleep(1500);
-        Console.WriteLine("You will be reset with $500.");
-        Thread.Sleep(1500);
-        Console.WriteLine("\nPress the Enter key to return to the menu");
-        Console.ReadLine();
-    }
-
     /* Checks if player's balance is < 50
         PARAMETERS:
             * double balance - Player's current balance
     */
-    static void CheckBalance(double balance) {
-        if (balance < 50) {
+    static void CheckBalance(double balance, string username, string connectionString)
+    {
+        if (balance < 50)
+        {
             reset = true;
-            ResetMoney();
+            UpdateBalance(500,username,connectionString);
+            Console.WriteLine("\nYou are out of money!");
+            Thread.Sleep(1500);
+            Console.WriteLine("You will be reset with $500.");
+            Thread.Sleep(1500);
+            Console.WriteLine("\nPress the Enter key to return to the menu");
+            Console.ReadLine();
         }
-        else {
+        else
+        {
+            UpdateBalance(balance, username, connectionString);
             Console.WriteLine($"Your balance is ${balance}.");
             Console.WriteLine("\nPress the Enter key to continue");
             Console.ReadLine();
+        }
+    }
+
+    /*  Update player's balance
+         PARAMETERS:
+             * double balance - Player's balance
+             * string connectionString - Connection string
+     */
+    static void UpdateBalance(double balance, string username, string connectionString)
+    {
+        string updateQuery = "UPDATE Blackjack_db SET balance = @balance WHERE username = @username";
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            try
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand(updateQuery, connection))
+                {
+                    // Add parameters to the command
+                    command.Parameters.AddWithValue("@username", username);
+                    command.Parameters.AddWithValue("@balance", balance);
+
+                    // Execute query
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected < 0)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error: Failed to update balance. Please try again");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
     }
 }
