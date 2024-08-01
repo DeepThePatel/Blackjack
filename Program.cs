@@ -184,6 +184,7 @@ public class Program {
                 }
                 else
                 {
+                    Console.Clear();
                     RegisterPassword(readResult, connectionString); // Pass readResult to display case insensitive username
                     validEntry = true;
                 }
@@ -219,7 +220,6 @@ public class Program {
         string? password = null;
         do
         {
-            Console.Clear();
             Console.WriteLine("--Register--\n");
             Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
             Console.WriteLine($"Username: {username}");
@@ -244,7 +244,7 @@ public class Program {
                 {
 
                     // Add username and password to database
-                    query = "INSERT INTO Blackjack_db (username,password) VALUES (@username, @password, @balance)";
+                    query = "INSERT INTO Blackjack_db (username,password,balance) VALUES (@username, @password, @balance)";
 
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
