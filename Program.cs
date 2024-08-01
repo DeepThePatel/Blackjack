@@ -142,11 +142,13 @@ public class Program {
             {
                 Console.Clear();
                 Login(connectionString);
+                validEntry = true;
             }
             else if (readResult.Equals("2"))
             {
                 Console.Clear();
                 Register(connectionString);
+                validEntry = true;
             }
             else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase)) {
                 Environment.Exit(0);
@@ -339,7 +341,6 @@ public class Program {
             string username = readResult.ToLower();
             if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
             {
-                // TODO: Test this try-catch block
                 try
                 {
                     if (UsernameExists(username, connectionString))
