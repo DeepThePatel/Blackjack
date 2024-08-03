@@ -5,6 +5,11 @@ Blackjack console game created using the .NET Framework programmed in C#.
 <h2>Gameplay</h2>
 
 To launch the game:
+1. &nbsp;&nbsp;Download the .ZIP folder under ```Assets``` in the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
+2. &nbsp;&nbsp;Unzip the folder and navigate to the ```/publish``` directory
+3. &nbsp;&nbsp;Run the ```Blackjack``` application file
+
+Alternatively:
 1. &nbsp;&nbsp;Clone the project into a folder on your computer
 2. &nbsp;&nbsp;Open the project folder in a new terminal in VSCode ```( Ctrl + Shift + ` )```
 3. &nbsp;&nbsp;Run ``` dotnet build ```
