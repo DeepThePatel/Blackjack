@@ -68,17 +68,17 @@ namespace Blackjack
                 Home(connectionString);
             }
 
+            isPlaying = true;
             while (isPlaying)
             {
-                Console.Clear();
-                Console.WriteLine("Welcome to Blackjack!");
-                Console.WriteLine($"Your current balance: ${balance}.\n");
-                Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
-                Console.WriteLine("Enter Q to exit.");
-
+                validEntry = false;
                 // Check if casino choice is valid or if player exits
                 do
                 {
+                    Console.WriteLine("Welcome to Blackjack!");
+                    Console.WriteLine($"Your current balance: ${balance}.\n");
+                    Console.WriteLine("To begin, choose your casino:\n  1. Las Vegas\t\t(Min Bet: $50)\n  2. Monte Carlo\t(Min Bet: $200)\n  3. Dubai\t\t(Min Bet: $500)\n");
+                    Console.WriteLine("Enter Q to logout.");
                     readResult = Console.ReadLine()?.ToLower().Trim();
                     if (readResult != null)
                     {
@@ -90,13 +90,16 @@ namespace Blackjack
                         }
                         else if (readResult == "q")
                         {
+                            isLoggedIn = false;
                             isPlaying = false;
                             validEntry = true;
+                            Console.Clear();
+                            Main();
                         }
                         else
                         {
-                            Console.WriteLine("Error: Invalid entry.");
-                            Console.WriteLine("\rChoose either 1, 2, or 3.");
+                            Console.Clear();
+                            Console.WriteLine("Error: Invalid entry. Choose either 1, 2, or 3.\n");
                         }
                     }
                 } while (validEntry == false);
@@ -656,6 +659,7 @@ namespace Blackjack
                 bet = Console.ReadLine()?.ToLower().Trim();
                 if (bet == "q")
                 {
+                    Console.Clear();
                     quit = true;
                     return (0, quit);
                 }
@@ -910,6 +914,7 @@ namespace Blackjack
                 }
             }
 
+            // Playing the split hands
             for (int i = 0; i < 2; i++)
             {
                 while (i == 0 ? playerFirstHandSum < 21 : playerSecondHandSum < 21)
@@ -1026,6 +1031,7 @@ namespace Blackjack
             bool canDouble = true;
             bool canSplit = false;
             bool doubled = false;
+            split = false;
             bool splitCompleted = false;
             List<Tuple<string, List<int>>> playerFirstHand = new List<Tuple<string, List<int>>>();
             List<Tuple<string, List<int>>> playerSecondHand = new List<Tuple<string, List<int>>>();
@@ -1039,7 +1045,7 @@ namespace Blackjack
                 return (false, 21, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
             if (playerFirstCard.SequenceEqual(playerSecondCard))    // Compare if integer values of the two cards are equal
                 canSplit = true;
-            while (playerCardSum <= 21 && stand == false)
+            while (playerCardSum < 21 && stand == false)
             {
                 if (splitCompleted == true)
                     break;
