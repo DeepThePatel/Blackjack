@@ -238,3 +238,5 @@ C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\win-x64\mscordbi.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\win-x64\mscorrc.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\win-x64\msquic.dll
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\win-x64\AWSSDK.Core.dll
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\win-x64\AWSSDK.SecretsManager.dll

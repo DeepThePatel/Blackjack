@@ -46,6 +46,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "AWSSDK.SecretsManager": {
+              "target": "Package",
+              "version": "[3.7.400.3, )"
+            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[5.2.1, )"
@@ -78,15 +82,15 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
               "version": "[8.0.7, 8.0.7]"
             },
             {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "name": "Microsoft.NETCore.App.Host.osx-x64",
               "version": "[8.0.7, 8.0.7]"
             },
             {
-              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "name": "Microsoft.NETCore.App.Runtime.osx-x64",
               "version": "[8.0.7, 8.0.7]"
             }
           ],
@@ -99,7 +103,7 @@
         }
       },
       "runtimes": {
-        "win-x64": {
+        "osx-x64": {
           "#import": []
         }
       }

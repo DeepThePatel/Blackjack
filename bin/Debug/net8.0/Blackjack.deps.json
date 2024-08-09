@@ -8,12 +8,32 @@
     ".NETCoreApp,Version=v8.0": {
       "Blackjack/1.0.0": {
         "dependencies": {
+          "AWSSDK.SecretsManager": "3.7.400.3",
           "Microsoft.Data.SqlClient": "5.2.1",
           "Microsoft.Extensions.Configuration": "8.0.0",
           "Microsoft.Extensions.Configuration.Json": "8.0.0"
         },
         "runtime": {
           "Blackjack.dll": {}
+        }
+      },
+      "AWSSDK.Core/3.7.400.3": {
+        "runtime": {
+          "lib/net8.0/AWSSDK.Core.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.400.3"
+          }
+        }
+      },
+      "AWSSDK.SecretsManager/3.7.400.3": {
+        "dependencies": {
+          "AWSSDK.Core": "3.7.400.3"
+        },
+        "runtime": {
+          "lib/net8.0/AWSSDK.SecretsManager.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.400.3"
+          }
         }
       },
       "Azure.Core/1.38.0": {
@@ -478,6 +498,20 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AWSSDK.Core/3.7.400.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Sw88+Hdw1OsA0++zImHbYJa7FA6OznFhtbB9wJjrAA5O4i/LOhqu1Zh7YjLBL4n1hkicbHSAlPmHP6Kgw70Xkg==",
+      "path": "awssdk.core/3.7.400.3",
+      "hashPath": "awssdk.core.3.7.400.3.nupkg.sha512"
+    },
+    "AWSSDK.SecretsManager/3.7.400.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-cYr7wJ/TFVn0ScrC950cdnhp/GWAssepMJ0wNgazVHljZZDAE0nAkSBaEnoGjSbiY0zSA04/OrqHOQa9fP3Y6w==",
+      "path": "awssdk.secretsmanager/3.7.400.3",
+      "hashPath": "awssdk.secretsmanager.3.7.400.3.nupkg.sha512"
     },
     "Azure.Core/1.38.0": {
       "type": "package",

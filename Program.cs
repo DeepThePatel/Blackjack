@@ -13,7 +13,7 @@ namespace Blackjack
     {
         private static double balance = 5000;
         private static string? readResult;
-        private static string query = "";
+        private static string db_query = "";
         private static string casino = "";
         private static bool validEntry = false;
         private static string? username;
@@ -254,7 +254,7 @@ namespace Blackjack
                     {
 
                         // Add username and password to database
-                        query = "INSERT INTO Blackjack_db (username,password,balance) VALUES (@username, @passwordHash, @balance)";
+                        db_query = "INSERT INTO Blackjack_db (username,password,balance) VALUES (@username, @passwordHash, @balance)";
 
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
@@ -262,7 +262,7 @@ namespace Blackjack
                             {
                                 connection.Open();
 
-                                using (SqlCommand command = new SqlCommand(query, connection))
+                                using (SqlCommand command = new SqlCommand(db_query, connection))
                                 {
                                     // Add parameters to the command
                                     command.Parameters.AddWithValue("@username", username);
@@ -427,7 +427,7 @@ namespace Blackjack
                 }
 
                 // Check if password is correct and retrieve balance if so
-                query = "SELECT password, balance FROM Blackjack_db WHERE username = @username";
+                db_query = "SELECT password, balance FROM Blackjack_db WHERE username = @username";
 
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
@@ -435,7 +435,7 @@ namespace Blackjack
                     {
                         connection.Open();
 
-                        using (SqlCommand command = new SqlCommand(query, connection))
+                        using (SqlCommand command = new SqlCommand(db_query, connection))
                         {
                             // Add parameter to the command
                             command.Parameters.AddWithValue("@username", username);
@@ -495,7 +495,7 @@ namespace Blackjack
         static bool UsernameExists(string username, string connectionString)
         {
             // Find if entered username exists in database
-            query = "SELECT 1 FROM Blackjack_db WHERE username = @username";
+            db_query = "SELECT 1 FROM Blackjack_db WHERE username = @username";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -503,7 +503,7 @@ namespace Blackjack
                 {
                     connection.Open();
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (SqlCommand command = new SqlCommand(db_query, connection))
                     {
                         // Add parameter to the command
                         command.Parameters.AddWithValue("@username", username);
@@ -1522,7 +1522,7 @@ namespace Blackjack
          */
         static void UpdateBalance(double balance, string username, string connectionString)
         {
-            query = "UPDATE Blackjack_db SET balance = @balance WHERE username = @username";
+            db_query = "UPDATE Blackjack_db SET balance = @balance WHERE username = @username";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -1530,7 +1530,7 @@ namespace Blackjack
                 {
                     connection.Open();
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (SqlCommand command = new SqlCommand(db_query, connection))
                     {
                         // Add parameters to the command
                         command.Parameters.AddWithValue("@username", username);

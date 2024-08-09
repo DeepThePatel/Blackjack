@@ -236,3 +236,5 @@ C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\osx-x64\libhostpolicy.dylib
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\osx-x64\libmscordaccore.dylib
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\osx-x64\libmscordbi.dylib
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\osx-x64\AWSSDK.Core.dll
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Release\net8.0\osx-x64\AWSSDK.SecretsManager.dll
