@@ -1588,10 +1588,7 @@ namespace Blackjack
             }
         }
 
-        /* Establish SQL database Connection
-            RETURN VALUES:
-                * string - DB Connection
-         */
+        // Establish database connection
         static string Connect()
         {
             var builder = new ConfigurationBuilder()
