@@ -17,6 +17,10 @@ Alternatively;
 
 <br>
 
+> NOTE: To play the game without saving progress, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
+
+<br>
+
 <h2>Main Menu</h2>
 
 Upon successful login/account creation, player will be notified of their initial balance of $5000.
