@@ -17,7 +17,7 @@ Alternatively;
 
 <br>
 
-> NOTE: To play the game without saving progress, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
+> NOTE: To play the game without creating an account, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
 
 <br>
 
