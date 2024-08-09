@@ -5,16 +5,25 @@ Blackjack console game created using the .NET Framework programmed in C#.
 <h2>Gameplay</h2>
 
 To launch the game:
+1. Download the [latest release](https://github.com/DeepThePatel/Blackjack/releases) ZIP for your respective OS
+2. Unzip the folder in your desired location
+3. Run the ```Blackjack``` application
+
+Alternatively;
 1. &nbsp;&nbsp;Clone the project into a folder on your computer
-2. &nbsp;&nbsp;Open the project folder in a new terminal in VSCode ```( Ctrl + Shift + ` )```
+2. &nbsp;&nbsp;Open the project folder in a new terminal in Visual Studio
 3. &nbsp;&nbsp;Run ``` dotnet build ```
 4. &nbsp;&nbsp;Then ``` dotnet run ```
 
 <br>
 
+> NOTE: To play the game without saving progress, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
+
+<br>
+
 <h2>Main Menu</h2>
 
-Upon entry, player will be notified of their initial balance of $5000.
+Upon successful login/account creation, player will be notified of their initial balance of $5000.
 
 The player will have the choice to pick from three (3) different casinos:
 

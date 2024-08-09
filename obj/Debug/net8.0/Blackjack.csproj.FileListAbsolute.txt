@@ -1,8 +1,11 @@
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\appsettings.json
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.exe
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.deps.json
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.runtimeconfig.json
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.pdb
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\AWSSDK.Core.dll
+C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\AWSSDK.SecretsManager.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
@@ -62,4 +65,3 @@ C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\re
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\Blackjack.pdb
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\Blackjack.genruntimeconfig.cache
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\obj\Debug\net8.0\ref\Blackjack.dll
-C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\appsettings.json

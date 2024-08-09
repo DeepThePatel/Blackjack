@@ -13,11 +13,11 @@ namespace Blackjack
     {
         private static double balance = 5000;
         private static string? readResult;
-        private static string query = "";
+        private static string db_query = "";
         private static string casino = "";
         private static bool validEntry = false;
         private static string? username;
-        private static string? connectionString;
+        private static string? db_authenticate;
         private static bool isLoggedIn = false;
         private static bool isPlaying = true;   // Is playing game
         private static bool isPlayingCasino = true; // Is playing a casino
@@ -52,22 +52,16 @@ namespace Blackjack
 
         public static void Main()
         {
-            //Establishing SQL database connection
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            IConfiguration config = builder.Build();
-
-            // Get the connection string
-            connectionString = config.GetConnectionString("DefaultConnection");
-
+            db_authenticate = Connect();
+            
             // Loop main menu until user logs in successfully
             while (isLoggedIn == false)
             {
                 Console.Clear();
-                Home(connectionString);
+                Home(db_authenticate);
             }
 
+            GetBalance();
             isPlaying = true;
             while (isPlaying)
             {
@@ -133,11 +127,11 @@ namespace Blackjack
         }
         /* Home screen
             PARAMETERS:
-                * string connectionString - Connection string
+                * string db_authenticate - DB Connection
             RETURN VALUES:
                 * bool - (True) if registering a new account (False) otherwise
          */
-        static void Home(string connectionString)
+        static void Home(string db_authenticate)
         {
             validEntry = false;
             while (validEntry == false)
@@ -148,13 +142,13 @@ namespace Blackjack
                 if (readResult.Equals("1"))
                 {
                     Console.Clear();
-                    Login(connectionString);
+                    Login(db_authenticate);
                     validEntry = true;
                 }
                 else if (readResult.Equals("2"))
                 {
                     Console.Clear();
-                    Register(connectionString);
+                    Register(db_authenticate);
                     validEntry = true;
                 }
                 else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
@@ -171,9 +165,9 @@ namespace Blackjack
 
         /* Register screen
             PARAMETERS:
-                * string connectionString - Connection string
+                * string db_authenticate - DB Connection
          */
-        static void Register(string connectionString)
+        static void Register(string db_authenticate)
         {
             while (validEntry == false)
             {
@@ -185,7 +179,7 @@ namespace Blackjack
                 // Username only allows characters, numbers, and underscores
                 if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
                 {
-                    if (UsernameExists(username, connectionString))
+                    if (UsernameExists(username, db_authenticate))
                     {
                         Console.Clear();
                         Console.WriteLine("Error: Username is already taken");
@@ -193,14 +187,14 @@ namespace Blackjack
                     else
                     {
                         Console.Clear();
-                        RegisterPassword(readResult, connectionString); // Pass readResult to display case insensitive username
+                        RegisterPassword(readResult, db_authenticate); // Pass readResult to display case insensitive username
                         validEntry = true;
                     }
                 }
                 else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
-                    Home(connectionString);
+                    Home(db_authenticate);
                     validEntry = true;
                 }
                 else if (readResult.Equals("c", StringComparison.OrdinalIgnoreCase))
@@ -219,9 +213,9 @@ namespace Blackjack
         /* Create password for new account
             PARAMETERS:
                 * string username - User's username
-                * string connectionString - Connection string
+                * string db_authenticate - DB Connection
          */
-        static void RegisterPassword(string username, string connectionString)
+        static void RegisterPassword(string username, string db_authenticate)
         {
             validEntry = false;
             bool passwordEntered = false;
@@ -254,20 +248,20 @@ namespace Blackjack
                     {
 
                         // Add username and password to database
-                        query = "INSERT INTO Blackjack_db (username,password,balance) VALUES (@username, @passwordHash, @balance)";
+                        db_query = "INSERT INTO Blackjack_db (username,password,balance) VALUES (@username, @passwordHash, @balance)";
 
-                        using (SqlConnection connection = new SqlConnection(connectionString))
+                        using (SqlConnection connection = new SqlConnection(db_authenticate))
                         {
                             try
                             {
                                 connection.Open();
 
-                                using (SqlCommand command = new SqlCommand(query, connection))
+                                using (SqlCommand command = new SqlCommand(db_query, connection))
                                 {
                                     // Add parameters to the command
-                                    command.Parameters.AddWithValue("@username", username);
-                                    command.Parameters.AddWithValue("@passwordHash", hashedPassword);
-                                    command.Parameters.AddWithValue("@balance", balance);
+                                    command.Parameters.Add(new SqlParameter("@username", username));
+                                    command.Parameters.Add(new SqlParameter("@passwordHash", hashedPassword));
+                                    command.Parameters.Add(new SqlParameter("@balance", 5000.0m));
 
                                     // Execute query
                                     int rowsAffected = command.ExecuteNonQuery();
@@ -301,13 +295,13 @@ namespace Blackjack
                     else if (reenterPassword.Equals("q", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.Clear();
-                        Home(connectionString);
+                        Home(db_authenticate);
                         validEntry = true;
                     }
                     else if (reenterPassword.Equals("c", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.Clear();
-                        Register(connectionString);
+                        Register(db_authenticate);
                         validEntry = true;
                     }
                     else
@@ -319,13 +313,13 @@ namespace Blackjack
                 else if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
-                    Home(connectionString);
+                    Home(db_authenticate);
                     validEntry = true;
                 }
                 else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
-                    Register(connectionString);
+                    Register(db_authenticate);
                     validEntry = true;
                 }
                 else
@@ -338,9 +332,9 @@ namespace Blackjack
 
         /* Login screen
             PARAMETERS:
-                * string connectionString - Connection String
+                * string db_authenticate - DB Connection
          */
-        static void Login(string connectionString)
+        static void Login(string db_authenticate)
         {
             bool validUsername = false;
             do
@@ -354,10 +348,10 @@ namespace Blackjack
                 {
                     try
                     {
-                        if (UsernameExists(username, connectionString))
+                        if (UsernameExists(username, db_authenticate))
                         {
                             Console.Clear();
-                            LoginPassword(readResult, connectionString);
+                            LoginPassword(readResult, db_authenticate);
                             validUsername = true;
                         }
                         else
@@ -375,13 +369,13 @@ namespace Blackjack
                 else if (readResult.Equals("q"))
                 {
                     Console.Clear();
-                    Home(connectionString);
+                    Home(db_authenticate);
                     break;
                 }
                 else if (readResult.Equals("c"))
                 {
                     Console.Clear();
-                    Login(connectionString);
+                    Login(db_authenticate);
                     break;
                 }
                 else
@@ -396,11 +390,11 @@ namespace Blackjack
         /* Get password with existing username
             PARAMETERS:
                 * string username - User's username
-                * string connectionString - Connection string
+                * string db_authenticate - DB Connection
             RETURN VALUES:
                 * bool - (True) if username exists (False) otherwise
          */
-        static void LoginPassword(string username, string connectionString)
+        static void LoginPassword(string username, string db_authenticate)
         {
             bool validPassword = false;
             do
@@ -416,26 +410,26 @@ namespace Blackjack
                 if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
-                    Home(connectionString);
+                    Home(db_authenticate);
                     break;
                 }
                 else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
-                    Login(connectionString);
+                    Login(db_authenticate);
                     break;
                 }
 
                 // Check if password is correct and retrieve balance if so
-                query = "SELECT password, balance FROM Blackjack_db WHERE username = @username";
+                db_query = "SELECT password, balance FROM Blackjack_db WHERE username = @username";
 
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(db_authenticate))
                 {
                     try
                     {
                         connection.Open();
 
-                        using (SqlCommand command = new SqlCommand(query, connection))
+                        using (SqlCommand command = new SqlCommand(db_query, connection))
                         {
                             // Add parameter to the command
                             command.Parameters.AddWithValue("@username", username);
@@ -488,22 +482,22 @@ namespace Blackjack
         /* Checks if username exists in database
             PARAMETERS:
                 * string username - User entered username
-                * string connectionString - Connecting string for database
+                * string db_authenticate - DB Connection
             RETURN VALUES:
                 * bool - Whether username exists in database or not
          */
-        static bool UsernameExists(string username, string connectionString)
+        static bool UsernameExists(string username, string db_authenticate)
         {
             // Find if entered username exists in database
-            query = "SELECT 1 FROM Blackjack_db WHERE username = @username";
+            db_query = "SELECT 1 FROM Blackjack_db WHERE username = @username";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(db_authenticate))
             {
                 try
                 {
                     connection.Open();
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (SqlCommand command = new SqlCommand(db_query, connection))
                     {
                         // Add parameter to the command
                         command.Parameters.AddWithValue("@username", username);
@@ -828,7 +822,7 @@ namespace Blackjack
                     DisplayDealersHand(dealerCards, dealerCardSum);
                     Console.WriteLine("\nBLACKJACK!");
                     balance += bet * 2.5;
-                    CheckBalance(balance,username,connectionString);
+                    CheckBalance(balance,username, db_authenticate);
                     return (true, playerCardSum, dealerCardSum);
                 }
             }
@@ -846,7 +840,7 @@ namespace Blackjack
                     Console.WriteLine("You won insurance!");
                     balance += bet + (insurance * 2);
                 }
-                CheckBalance(balance,username,connectionString);
+                CheckBalance(balance,username, db_authenticate);
 
                 return (true, playerCardSum, dealerCardSum);
             }
@@ -1113,7 +1107,7 @@ namespace Blackjack
                             Console.WriteLine();
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine($"\nYou busted.");
-                            CheckBalance(balance,username,connectionString);
+                            CheckBalance(balance,username, db_authenticate);
                             return (false, playerCardSum, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
                         }
 
@@ -1141,7 +1135,7 @@ namespace Blackjack
                             if (playerFirstHandSum > 21 && playerSecondHandSum > 21)
                             {
                                 Console.WriteLine("Dealer wins.");
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
                                 return (false, 0, playerFirstHand, playerSecondHand, bet);
                             }
                             splitCompleted = true;
@@ -1231,19 +1225,19 @@ namespace Blackjack
                             if (dealerCardSum > playerSecondHandSum)
                             {
                                 Console.WriteLine("Dealer wins the second hand.\n");
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerSecondHandSum > dealerCardSum)
                             {
                                 balance += bet;
                                 Console.WriteLine("You win the second hand!\n");
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerSecondHandSum == dealerCardSum)
                             {
                                 balance += bet / 2;
                                 Console.WriteLine("The second hand is a Push.\n");
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
                             }
                         }
                     }
@@ -1305,20 +1299,20 @@ namespace Blackjack
                                     if (dealerCardSum > playerSecondHandSum)
                                     {
                                         Console.WriteLine("Dealer wins the second hand.");
-                                        CheckBalance(balance,username,connectionString);
+                                        CheckBalance(balance,username, db_authenticate);
 
                                     }
                                     else if (playerSecondHandSum > dealerCardSum)
                                     {
                                         Console.WriteLine("\nYou win the second hand!");
                                         balance += bet;
-                                        CheckBalance(balance,username,connectionString);
+                                        CheckBalance(balance,username, db_authenticate);
                                     }
                                     else if (playerSecondHandSum == dealerCardSum)
                                     {
                                         Console.WriteLine("\nPush.");
                                         balance += bet / 2;
-                                        CheckBalance(balance,username,connectionString);
+                                        CheckBalance(balance,username, db_authenticate);
                                     }
                                 }
                             }
@@ -1331,7 +1325,7 @@ namespace Blackjack
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine("\nDealer busted!");
                             balance += bet * 2;
-                            CheckBalance(balance,username,connectionString);
+                            CheckBalance(balance,username, db_authenticate);
                         }
                     } while (dealerCardSum < 17);
                 }
@@ -1348,7 +1342,7 @@ namespace Blackjack
                         DisplayDealersHand(dealerCards, dealerCardSum);
 
                         Console.WriteLine("\nDealer wins.");
-                        CheckBalance(balance,username,connectionString);
+                        CheckBalance(balance,username, db_authenticate);
                     }
                     else if (playerCardSum > dealerCardSum)
                     {
@@ -1359,7 +1353,7 @@ namespace Blackjack
 
                         Console.WriteLine("\nYou win!");
                         balance += bet * 2;
-                        CheckBalance(balance,username,connectionString);
+                        CheckBalance(balance,username, db_authenticate);
                     }
                     else if (playerCardSum == dealerCardSum)
                     {
@@ -1406,14 +1400,14 @@ namespace Blackjack
                             if (dealerCardSum > playerCardSum)
                             {
                                 Console.WriteLine("\nDealer wins.");
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
 
                             }
                             else if (playerCardSum > dealerCardSum)
                             {
                                 Console.WriteLine("\nYou win!");
                                 balance += bet * 2;
-                                CheckBalance(balance,username,connectionString);
+                                CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerCardSum == dealerCardSum)
                             {
@@ -1431,7 +1425,7 @@ namespace Blackjack
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine("\nDealer busted!");
                             balance += bet * 2;
-                            CheckBalance(balance,username,connectionString);
+                            CheckBalance(balance,username, db_authenticate);
                         }
                     } while (dealerCardSum < 17);
                 }
@@ -1489,16 +1483,52 @@ namespace Blackjack
             }
         }
 
+        // Get player's balance from database
+        static void GetBalance()
+        {
+            using (SqlConnection connection = new SqlConnection(db_authenticate))
+            {
+                try
+                {
+                    connection.Open();
+
+                    using (SqlCommand command = new SqlCommand("SELECT balance FROM Blackjack_db WHERE username = @username", connection))
+                    {
+                        // Add parameters to the command
+                        command.Parameters.AddWithValue("@username", username);
+
+                        // Execute query
+                        object balance_db = command.ExecuteScalar();
+
+                        if (balance_db != null && balance_db != DBNull.Value)
+                        {
+                            balance = Convert.ToDouble((decimal)balance_db); 
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
         /* Checks if player's balance is < 50
             PARAMETERS:
                 * double balance - Player's current balance
         */
-        static void CheckBalance(double balance, string username, string connectionString)
+        static void CheckBalance(double balance, string username, string db_authenticate)
         {
             if (balance < 50)
             {
                 reset = true;
-                UpdateBalance(500,username,connectionString);   // Reset player with $500 balance
+                UpdateBalance(500,username, db_authenticate);   // Reset player with $500 balance
                 Console.WriteLine("\nYou are out of money!");
                 Thread.Sleep(1500);
                 Console.WriteLine("You will be reset with $500.");
@@ -1508,7 +1538,7 @@ namespace Blackjack
             }
             else
             {
-                UpdateBalance(balance, username, connectionString);
+                UpdateBalance(balance, username, db_authenticate);
                 Console.WriteLine($"Your balance is ${balance}.");
                 Console.WriteLine("\nPress the Enter key to continue");
                 Console.ReadLine();
@@ -1518,19 +1548,19 @@ namespace Blackjack
         /*  Update player's balance
              PARAMETERS:
                  * double balance - Player's balance
-                 * string connectionString - Connection string
+                 * string db_authenticate - DB Connection
          */
-        static void UpdateBalance(double balance, string username, string connectionString)
+        static void UpdateBalance(double balance, string username, string db_authenticate)
         {
-            query = "UPDATE Blackjack_db SET balance = @balance WHERE username = @username";
+            db_query = "UPDATE Blackjack_db SET balance = @balance WHERE username = @username";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(db_authenticate))
             {
                 try
                 {
                     connection.Open();
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (SqlCommand command = new SqlCommand(db_query, connection))
                     {
                         // Add parameters to the command
                         command.Parameters.AddWithValue("@username", username);
@@ -1556,6 +1586,25 @@ namespace Blackjack
                     connection.Close();
                 }
             }
+        }
+
+        // Establish database connection
+        static string Connect()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            IConfiguration config = builder.Build();
+
+            db_authenticate = config.GetSection("user_con_00")["user_con_01"];
+
+            byte[] bytes = new byte[db_authenticate.Length / 2];
+            for (int i = 0; i < db_authenticate.Length; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(db_authenticate.Substring(i, 2), 16);
+            }
+
+            return Encoding.UTF8.GetString(bytes);
         }
     }
 }
