@@ -23,7 +23,7 @@ Alternatively;
 
 <h2>Main Menu</h2>
 
-Upon successful login/account creation, player will be notified of their initial balance of $5000.
+Upon successful login/account creation, player will be notified of their initial balance.
 
 The player will have the choice to pick from three (3) different casinos:
 
