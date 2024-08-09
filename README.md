@@ -11,7 +11,7 @@ To launch the game:
 
 Alternatively;
 1. &nbsp;&nbsp;Clone the project into a folder on your computer
-2. &nbsp;&nbsp;Open the project folder in a new terminal in VSCode ```( Ctrl + Shift + ` )``` (``` Ctrl + ` ``` for Visual Studio)
+2. &nbsp;&nbsp;Open the project folder in a new terminal in Visual Studio
 3. &nbsp;&nbsp;Run ``` dotnet build ```
 4. &nbsp;&nbsp;Then ``` dotnet run ```
 
