@@ -1599,7 +1599,7 @@ namespace Blackjack
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             IConfiguration config = builder.Build();
 
-            db_authenticate = config.GetConnectionString("user_con_00");
+            db_authenticate = config.GetSection("user_con_00")["user_con_01"];
 
             byte[] bytes = new byte[db_authenticate.Length / 2];
             for (int i = 0; i < db_authenticate.Length; i += 2)
