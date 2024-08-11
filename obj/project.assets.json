@@ -2,35 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "AWSSDK.Core/3.7.400.3": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/AWSSDK.Core.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/AWSSDK.Core.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "AWSSDK.SecretsManager/3.7.400.3": {
-        "type": "package",
-        "dependencies": {
-          "AWSSDK.Core": "[3.7.400.3, 4.0.0)"
-        },
-        "compile": {
-          "lib/net8.0/AWSSDK.SecretsManager.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/AWSSDK.SecretsManager.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
       "Azure.Core/1.38.0": {
         "type": "package",
         "dependencies": {
@@ -790,67 +761,6 @@
     }
   },
   "libraries": {
-    "AWSSDK.Core/3.7.400.3": {
-      "sha512": "Sw88+Hdw1OsA0++zImHbYJa7FA6OznFhtbB9wJjrAA5O4i/LOhqu1Zh7YjLBL4n1hkicbHSAlPmHP6Kgw70Xkg==",
-      "type": "package",
-      "path": "awssdk.core/3.7.400.3",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "awssdk.core.3.7.400.3.nupkg.sha512",
-        "awssdk.core.nuspec",
-        "images/AWSLogo.png",
-        "lib/net35/AWSSDK.Core.dll",
-        "lib/net35/AWSSDK.Core.pdb",
-        "lib/net35/AWSSDK.Core.xml",
-        "lib/net45/AWSSDK.Core.dll",
-        "lib/net45/AWSSDK.Core.pdb",
-        "lib/net45/AWSSDK.Core.xml",
-        "lib/net8.0/AWSSDK.Core.dll",
-        "lib/net8.0/AWSSDK.Core.pdb",
-        "lib/net8.0/AWSSDK.Core.xml",
-        "lib/netcoreapp3.1/AWSSDK.Core.dll",
-        "lib/netcoreapp3.1/AWSSDK.Core.pdb",
-        "lib/netcoreapp3.1/AWSSDK.Core.xml",
-        "lib/netstandard2.0/AWSSDK.Core.dll",
-        "lib/netstandard2.0/AWSSDK.Core.pdb",
-        "lib/netstandard2.0/AWSSDK.Core.xml",
-        "tools/account-management.ps1"
-      ]
-    },
-    "AWSSDK.SecretsManager/3.7.400.3": {
-      "sha512": "cYr7wJ/TFVn0ScrC950cdnhp/GWAssepMJ0wNgazVHljZZDAE0nAkSBaEnoGjSbiY0zSA04/OrqHOQa9fP3Y6w==",
-      "type": "package",
-      "path": "awssdk.secretsmanager/3.7.400.3",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "analyzers/dotnet/cs/AWSSDK.SecretsManager.CodeAnalysis.dll",
-        "analyzers/dotnet/cs/SharedAnalysisCode.dll",
-        "awssdk.secretsmanager.3.7.400.3.nupkg.sha512",
-        "awssdk.secretsmanager.nuspec",
-        "images/AWSLogo.png",
-        "lib/net35/AWSSDK.SecretsManager.dll",
-        "lib/net35/AWSSDK.SecretsManager.pdb",
-        "lib/net35/AWSSDK.SecretsManager.xml",
-        "lib/net45/AWSSDK.SecretsManager.dll",
-        "lib/net45/AWSSDK.SecretsManager.pdb",
-        "lib/net45/AWSSDK.SecretsManager.xml",
-        "lib/net8.0/AWSSDK.SecretsManager.dll",
-        "lib/net8.0/AWSSDK.SecretsManager.pdb",
-        "lib/net8.0/AWSSDK.SecretsManager.xml",
-        "lib/netcoreapp3.1/AWSSDK.SecretsManager.dll",
-        "lib/netcoreapp3.1/AWSSDK.SecretsManager.pdb",
-        "lib/netcoreapp3.1/AWSSDK.SecretsManager.xml",
-        "lib/netstandard2.0/AWSSDK.SecretsManager.dll",
-        "lib/netstandard2.0/AWSSDK.SecretsManager.pdb",
-        "lib/netstandard2.0/AWSSDK.SecretsManager.xml",
-        "tools/install.ps1",
-        "tools/uninstall.ps1"
-      ]
-    },
     "Azure.Core/1.38.0": {
       "sha512": "IuEgCoVA0ef7E4pQtpC3+TkPbzaoQfa77HlfJDmfuaJUCVJmn7fT0izamZiryW5sYUFKizsftIxMkXKbgIcPMQ==",
       "type": "package",
@@ -2256,7 +2166,6 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "AWSSDK.SecretsManager >= 3.7.400.3",
       "Microsoft.Data.SqlClient >= 5.2.1",
       "Microsoft.Extensions.Configuration >= 8.0.0",
       "Microsoft.Extensions.Configuration.Json >= 8.0.0"
@@ -2307,10 +2216,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "AWSSDK.SecretsManager": {
-            "target": "Package",
-            "version": "[3.7.400.3, )"
-          },
           "Microsoft.Data.SqlClient": {
             "target": "Package",
             "version": "[5.2.1, )"

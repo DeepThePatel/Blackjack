@@ -128,8 +128,6 @@ namespace Blackjack
         /* Home screen
             PARAMETERS:
                 * string db_authenticate - DB Connection
-            RETURN VALUES:
-                * bool - (True) if registering a new account (False) otherwise
          */
         static void Home(string db_authenticate)
         {
@@ -1017,7 +1015,10 @@ namespace Blackjack
                 * int bet - The player's bet
             RETURN VALUES:
                 * bool - Boolean value that returns (true) if round should continue and (false) if not
-                * int playerCardSum - Returns the sum of the player's hand
+                * int - Returns the sum of the player's hand
+                * List<Tuple<string, List<int>>> - Player's first split hand
+                * List<Tuple<string, List<int>>> - Player's second split hand
+                * int - Player's bet
         */
         static (bool, int, List<Tuple<string, List<int>>>, List<Tuple<string, List<int>>>, int) PlayerTurn(List<Tuple<string, List<int>>> playerCards, List<Tuple<string, List<int>>> dealerCards, int bet)
         {
@@ -1522,6 +1523,8 @@ namespace Blackjack
         /* Checks if player's balance is < 50
             PARAMETERS:
                 * double balance - Player's current balance
+                * string username - Player's username
+                * string db_authenticate - DB Connection
         */
         static void CheckBalance(double balance, string username, string db_authenticate)
         {

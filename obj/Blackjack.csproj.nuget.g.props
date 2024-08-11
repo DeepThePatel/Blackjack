@@ -12,8 +12,4 @@
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\deepk\.nuget\packages\" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgAWSSDK_Core Condition=" '$(PkgAWSSDK_Core)' == '' ">C:\Users\deepk\.nuget\packages\awssdk.core\3.7.400.3</PkgAWSSDK_Core>
-    <PkgAWSSDK_SecretsManager Condition=" '$(PkgAWSSDK_SecretsManager)' == '' ">C:\Users\deepk\.nuget\packages\awssdk.secretsmanager\3.7.400.3</PkgAWSSDK_SecretsManager>
-  </PropertyGroup>
 </Project>

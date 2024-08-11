@@ -4,8 +4,6 @@ C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Bl
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.runtimeconfig.json
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Blackjack.pdb
-C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\AWSSDK.Core.dll
-C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\AWSSDK.SecretsManager.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\deepk\OneDrive\Documents\Computer Science\Blackjack\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll

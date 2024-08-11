@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "IjXzMSbptD8=",
+  "dgSpecHash": "7TBxvqOBqe0=",
   "success": true,
   "projectFilePath": "C:\\Users\\deepk\\OneDrive\\Documents\\Computer Science\\Blackjack\\Blackjack.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\deepk\\.nuget\\packages\\awssdk.core\\3.7.400.3\\awssdk.core.3.7.400.3.nupkg.sha512",
-    "C:\\Users\\deepk\\.nuget\\packages\\awssdk.secretsmanager\\3.7.400.3\\awssdk.secretsmanager.3.7.400.3.nupkg.sha512",
     "C:\\Users\\deepk\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\deepk\\.nuget\\packages\\azure.identity\\1.11.3\\azure.identity.1.11.3.nupkg.sha512",
     "C:\\Users\\deepk\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
