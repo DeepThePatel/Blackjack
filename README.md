@@ -10,11 +10,11 @@ To launch the game:
 3. Run the ```Blackjack``` application
 
 Alternatively;
-1. &nbsp;&nbsp;Clone the project into a folder on your computer
+1. Clone the project into a folder on your computer
 2. Ensure you have the .NET SDK installed
-3. &nbsp;&nbsp;Open the project folder in a new terminal in Visual Studio
-4. &nbsp;&nbsp;Run ``` dotnet build ```
-5. &nbsp;&nbsp;Then ``` dotnet run ```
+3. Open the project folder in a new terminal in Visual Studio
+4. Run ``` dotnet build ```
+5. Then ``` dotnet run ```
 
 <br>
 
