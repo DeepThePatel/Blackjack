@@ -137,19 +137,19 @@ namespace Blackjack
                 Console.WriteLine("--Blackjack v1.4.0--\n");
                 Console.WriteLine("(1) Login\n(2) Register");
                 readResult = Console.ReadLine()?.Trim();
-                if (readResult.Equals("1"))
+                if (readResult != null && readResult.Equals("1"))
                 {
                     Console.Clear();
                     Login(db_authenticate);
                     validEntry = true;
                 }
-                else if (readResult.Equals("2"))
+                else if (readResult != null && readResult.Equals("2"))
                 {
                     Console.Clear();
                     Register(db_authenticate);
                     validEntry = true;
                 }
-                else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
+                else if (readResult != null && readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
                     Environment.Exit(0);
                 }
@@ -173,11 +173,16 @@ namespace Blackjack
                 Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
                 Console.Write("Username: ");
                 readResult = Console.ReadLine();
-                username = readResult.ToLower();
+                if(readResult != null)
+                    username = readResult.ToLower();
                 // Username only allows characters, numbers, and underscores
                 if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
-                {
-                    if (UsernameExists(username, db_authenticate))
+                {   
+                    if (string.IsNullOrEmpty(username))
+                    {
+                        Console.WriteLine("Error: Username cannot be null or empty");
+                    }
+                    else if (UsernameExists(username, db_authenticate))
                     {
                         Console.Clear();
                         Console.WriteLine("Error: Username is already taken");
@@ -189,13 +194,13 @@ namespace Blackjack
                         validEntry = true;
                     }
                 }
-                else if (readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
+                else if (readResult != null && readResult.Equals("q", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
                     Home(db_authenticate);
                     validEntry = true;
                 }
-                else if (readResult.Equals("c", StringComparison.OrdinalIgnoreCase))
+                else if (readResult != null && readResult.Equals("c", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
                     continue;
@@ -228,12 +233,27 @@ namespace Blackjack
                 {
                     Console.Write("Password: ");
                     password = ReadPassword();
-                    hashedPassword = HashPassword(password);
-                    passwordEntered = true;
+
+                    if (password != null)
+                    {
+                        hashedPassword = HashPassword(password);
+                        passwordEntered = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Please enter a valid password.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"Password: {MaskPassword(password)}");
+                    if (password != null)
+                    {
+                        Console.WriteLine($"Password: {MaskPassword(password)}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: No password has been entered.");
+                    }
                 }
 
                 // Password may contain characters, numbers, or special characters (!,@,#,$,%,^,&,*,(,))
@@ -270,6 +290,7 @@ namespace Blackjack
                                         isLoggedIn = true;
                                         Console.WriteLine("Account successfully created!");
                                         Thread.Sleep(1500);
+                                        Console.Clear();
                                         return;
                                     }
                                     else
@@ -308,23 +329,25 @@ namespace Blackjack
                         Console.WriteLine("Error: Passwords do not match");
                     }
                 }
-                else if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.Clear();
-                    Home(db_authenticate);
-                    validEntry = true;
-                }
-                else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.Clear();
-                    Register(db_authenticate);
-                    validEntry = true;
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Error: Invalid password. Password must contain at least 8 alphanumeric or special (!,@,#,$,%,^,&,*,(,)) characters.");
-                }
+                else if (password != null) {
+                    if (password.Equals("q", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.Clear();
+                        Home(db_authenticate);
+                        validEntry = true;
+                    }
+                    else if (password.Equals("c", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.Clear();
+                        Register(db_authenticate);
+                        validEntry = true;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error: Invalid password. Password must contain at least 8 alphanumeric or special (!,@,#,$,%,^,&,*,(,)) characters.");
+                    }
+                }               
             } while (validEntry == false);
         }
 
@@ -341,22 +364,25 @@ namespace Blackjack
                 Console.WriteLine("Enter (C) to clear fields or (Q) to go back to main menu");
                 Console.Write("Username: ");
                 readResult = Console.ReadLine();
-                username = readResult.ToLower();
+                if(readResult != null)
+                    username = readResult.ToLower();
                 if (!string.IsNullOrEmpty(readResult) && Regex.IsMatch(readResult, @"^[a-zA-Z0-9_]+$") && readResult.Length >= 6 && readResult.Length <= 20)
                 {
                     try
                     {
-                        if (UsernameExists(username, db_authenticate))
-                        {
-                            Console.Clear();
-                            LoginPassword(readResult, db_authenticate);
-                            validUsername = true;
-                        }
-                        else
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Error: Invalid username");
-                        }
+                        if (username != null) {
+                            if (UsernameExists(username, db_authenticate))
+                            {
+                                Console.Clear();
+                                LoginPassword(readResult, db_authenticate);
+                                validUsername = true;
+                            }
+                            else
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Error: Invalid username");
+                            }
+                        }                      
                     }
                     catch (Exception ex)
                     {
@@ -364,13 +390,13 @@ namespace Blackjack
                         Console.WriteLine("Error: " + ex.Message);
                     }
                 }
-                else if (readResult.Equals("q"))
+                else if (readResult != null && readResult.Equals("q"))
                 {
                     Console.Clear();
                     Home(db_authenticate);
                     break;
                 }
-                else if (readResult.Equals("c"))
+                else if (readResult != null && readResult.Equals("c"))
                 {
                     Console.Clear();
                     Login(db_authenticate);
@@ -820,7 +846,8 @@ namespace Blackjack
                     DisplayDealersHand(dealerCards, dealerCardSum);
                     Console.WriteLine("\nBLACKJACK!");
                     balance += bet * 2.5;
-                    CheckBalance(balance,username, db_authenticate);
+                    if(username != null && db_authenticate != null)
+                        CheckBalance(balance,username, db_authenticate);
                     return (true, playerCardSum, dealerCardSum);
                 }
             }
@@ -838,7 +865,8 @@ namespace Blackjack
                     Console.WriteLine("You won insurance!");
                     balance += bet + (insurance * 2);
                 }
-                CheckBalance(balance,username, db_authenticate);
+                if(username != null && db_authenticate != null)
+                    CheckBalance(balance,username, db_authenticate);
 
                 return (true, playerCardSum, dealerCardSum);
             }
@@ -1108,7 +1136,8 @@ namespace Blackjack
                             Console.WriteLine();
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine($"\nYou busted.");
-                            CheckBalance(balance,username, db_authenticate);
+                            if(username != null && db_authenticate != null)
+                                CheckBalance(balance,username, db_authenticate);
                             return (false, playerCardSum, new List<Tuple<string, List<int>>>(), new List<Tuple<string, List<int>>>(), bet);
                         }
 
@@ -1136,7 +1165,8 @@ namespace Blackjack
                             if (playerFirstHandSum > 21 && playerSecondHandSum > 21)
                             {
                                 Console.WriteLine("Dealer wins.");
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
                                 return (false, 0, playerFirstHand, playerSecondHand, bet);
                             }
                             splitCompleted = true;
@@ -1226,19 +1256,22 @@ namespace Blackjack
                             if (dealerCardSum > playerSecondHandSum)
                             {
                                 Console.WriteLine("Dealer wins the second hand.\n");
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerSecondHandSum > dealerCardSum)
                             {
                                 balance += bet;
                                 Console.WriteLine("You win the second hand!\n");
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerSecondHandSum == dealerCardSum)
                             {
                                 balance += bet / 2;
                                 Console.WriteLine("The second hand is a Push.\n");
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
                             }
                         }
                     }
@@ -1300,20 +1333,23 @@ namespace Blackjack
                                     if (dealerCardSum > playerSecondHandSum)
                                     {
                                         Console.WriteLine("Dealer wins the second hand.");
-                                        CheckBalance(balance,username, db_authenticate);
+                                        if(username != null && db_authenticate != null)
+                                            CheckBalance(balance,username, db_authenticate);
 
                                     }
                                     else if (playerSecondHandSum > dealerCardSum)
                                     {
                                         Console.WriteLine("\nYou win the second hand!");
                                         balance += bet;
-                                        CheckBalance(balance,username, db_authenticate);
+                                        if(username != null && db_authenticate != null)
+                                            CheckBalance(balance,username, db_authenticate);
                                     }
                                     else if (playerSecondHandSum == dealerCardSum)
                                     {
                                         Console.WriteLine("\nPush.");
                                         balance += bet / 2;
-                                        CheckBalance(balance,username, db_authenticate);
+                                        if(username != null && db_authenticate != null)
+                                            CheckBalance(balance,username, db_authenticate);
                                     }
                                 }
                             }
@@ -1326,7 +1362,8 @@ namespace Blackjack
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine("\nDealer busted!");
                             balance += bet * 2;
-                            CheckBalance(balance,username, db_authenticate);
+                            if(username != null && db_authenticate != null)
+                                CheckBalance(balance,username, db_authenticate);
                         }
                     } while (dealerCardSum < 17);
                 }
@@ -1343,7 +1380,8 @@ namespace Blackjack
                         DisplayDealersHand(dealerCards, dealerCardSum);
 
                         Console.WriteLine("\nDealer wins.");
-                        CheckBalance(balance,username, db_authenticate);
+                        if(username != null && db_authenticate != null)
+                            CheckBalance(balance,username, db_authenticate);
                     }
                     else if (playerCardSum > dealerCardSum)
                     {
@@ -1354,7 +1392,8 @@ namespace Blackjack
 
                         Console.WriteLine("\nYou win!");
                         balance += bet * 2;
-                        CheckBalance(balance,username, db_authenticate);
+                        if(username != null && db_authenticate != null)
+                            CheckBalance(balance,username, db_authenticate);
                     }
                     else if (playerCardSum == dealerCardSum)
                     {
@@ -1401,14 +1440,16 @@ namespace Blackjack
                             if (dealerCardSum > playerCardSum)
                             {
                                 Console.WriteLine("\nDealer wins.");
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
 
                             }
                             else if (playerCardSum > dealerCardSum)
                             {
                                 Console.WriteLine("\nYou win!");
                                 balance += bet * 2;
-                                CheckBalance(balance,username, db_authenticate);
+                                if(username != null && db_authenticate != null)
+                                    CheckBalance(balance,username, db_authenticate);
                             }
                             else if (playerCardSum == dealerCardSum)
                             {
@@ -1426,7 +1467,8 @@ namespace Blackjack
                             DisplayDealersHand(dealerCards, dealerCardSum);
                             Console.WriteLine("\nDealer busted!");
                             balance += bet * 2;
-                            CheckBalance(balance,username, db_authenticate);
+                            if(username != null && db_authenticate != null)
+                                CheckBalance(balance,username, db_authenticate);
                         }
                     } while (dealerCardSum < 17);
                 }
@@ -1601,13 +1643,18 @@ namespace Blackjack
 
             db_authenticate = config.GetSection("user_con_00")["user_con_01"];
 
-            byte[] bytes = new byte[db_authenticate.Length / 2];
-            for (int i = 0; i < db_authenticate.Length; i += 2)
+            if(db_authenticate != null) 
             {
-                bytes[i / 2] = Convert.ToByte(db_authenticate.Substring(i, 2), 16);
+                byte[] bytes = new byte[db_authenticate.Length / 2];
+                for (int i = 0; i < db_authenticate.Length; i += 2)
+                {
+                    bytes[i / 2] = Convert.ToByte(db_authenticate.Substring(i, 2), 16);
+                }
+
+                return Encoding.UTF8.GetString(bytes);
             }
 
-            return Encoding.UTF8.GetString(bytes);
+            return "";            
         }
     }
 }
