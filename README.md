@@ -51,7 +51,7 @@ git clone https://github.com/DeepThePatel/Blackjack.git
 ```
 dotnet build
 ```
-5. Then
+6. Then
 ```
 dotnet run
 ```
