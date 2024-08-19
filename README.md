@@ -46,7 +46,8 @@ git clone https://github.com/DeepThePatel/Blackjack.git
 ```
 2. Ensure you have the [.NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed
 3. Open the project folder in a new terminal in Visual Studio
-4. Run
+4. Download the [necessary packages](https://github.com/DeepThePatel/Blackjack/wiki/Software-Documentation#libraries-and-packages)
+5. Run
 ```
 dotnet build
 ```
