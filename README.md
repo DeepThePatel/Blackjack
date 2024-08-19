@@ -2,23 +2,58 @@ Blackjack console game created using the .NET Framework programmed in C#.
 
 *All code is written and owned by me.*
 
-<h2>Gameplay</h2>
+> NOTE: To play the game without creating an account, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
 
-To launch the game:
-1. Download the [latest release](https://github.com/DeepThePatel/Blackjack/releases) ZIP for your respective OS
-2. Unzip the folder in your desired location
-3. Run the ```Blackjack``` application
+<h2>Installation</h2>
 
-Alternatively;
-1. Clone the project into a folder on your computer
-2. Ensure you have the .NET SDK installed
-3. Open the project folder in a new terminal in Visual Studio
-4. Run ``` dotnet build ```
-5. Then ``` dotnet run ```
+*You may choose either of the three methods that best suits you*
 
 <br>
 
-> NOTE: To play the game without creating an account, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0)
+**Download the .ZIP**
+1. Download the [latest release](https://github.com/DeepThePatel/Blackjack/releases) .ZIP folder for your respective OS
+2. Unzip the folder in your desired location
+3. Run the Blackjack application
+
+<br>
+
+**Download the Docker Image**
+1. Run the command below in your terminal
+```
+docker pull ghcr.io/deepthepatel/blackjack:latest
+```
+2. Run the command below. The ```-it``` flag ensures the image runs in interactive mode. You may rename ```blackjack-container```
+```
+docker run -it --name blackjack-container ghcr.io/deepthepatel/blackjack:latest
+```
+   
+*To run the app again with the existing container:*
+```
+docker start blackjack-container
+```
+```
+docker attach blackjack-container
+```
+
+> NOTE: After running the attach command, the terminal may appear to do nothing, press ```Enter``` to see the application running
+
+<br>
+
+**Clone the Repository**
+1. Clone the project into a folder on your computer
+```
+git clone https://github.com/DeepThePatel/Blackjack.git
+```
+2. Ensure you have the [.NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed
+3. Open the project folder in a new terminal in Visual Studio
+4. Run
+```
+dotnet build
+```
+5. Then
+```
+dotnet run
+```
 
 <br>
 
