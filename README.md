@@ -4,7 +4,7 @@ Blackjack console game created using the .NET Framework programmed in C#.
 
 *All code is written and owned by me.*
 
-> NOTE: To play the game without creating an account, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0) (Docker image unavailable)
+To play the game without creating an account, download the [Blackjack v1.3.0 Release](https://github.com/DeepThePatel/Blackjack/releases/tag/v1.3.0) (Docker image unavailable)
 
 <h2>Installation</h2>
 
