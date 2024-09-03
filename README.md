@@ -1,3 +1,5 @@
+> NOTICE: Attempting to login/signup may not be functional at times. This is due to the deallocation of the database server to avoid incurring cloud service charges as the purpose of this project was to gain experience using different technologies and the cloud. If you would still like to play the game without logging in/signing up, you may use the link below to download the v1.3.0 release. If you would like to login/register and the credential functionalities are not working, please contact me directly via email: deepkalpana1@aol.com. Thank you for your interest!
+
 Blackjack console game created using the .NET Framework programmed in C#.
 
 *All code is written and owned by me.*
